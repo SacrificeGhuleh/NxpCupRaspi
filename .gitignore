@@ -1,0 +1,47 @@
+# Created by https://www.gitignore.io/api/c++
+# Edit at https://www.gitignore.io/?templates=c++
+
+### C++ ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# End of https://www.gitignore.io/api/c++
+
+# Directories
+cmake-build-debug/
+cmake-build-debug-mingw/
+cmake-build-debug-pi-hotspot/
+cmake-build-debug-pi-kabel/
+cmake-build-debug-wsl/
+recordings/
+.idea/

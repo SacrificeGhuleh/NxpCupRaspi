@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <comPort>
+        <Name>/dev/ttyACM0</Name>
+        <Baud>9600</Baud>
+        <Timeout>25</Timeout>
+        <Parity>2</Parity>
+        <StopBit>1</StopBit>
+        <Interval>10</Interval>
+    </comPort>
+    <nxpConfig>
+        <ControlPwmMax>1000</ControlPwmMax>
+        <ControlPwmStep>10</ControlPwmStep>
+        <ControlDriveMax>500</ControlDriveMax>
+        <ServoCenter>1400</ServoCenter>
+        <ServoLR>250</ServoLR>
+        <ServoTurnRatio>0.0</ServoTurnRatio>
+        <ServoMaxRatio>1.0</ServoMaxRatio>
+        <ErrorConst>1000.0</ErrorConst>
+        <DerivativeConst>0.0</DerivativeConst>
+        <IntegralConst>0.0</IntegralConst>
+        <PrevLineSearchRegion>10</PrevLineSearchRegion>
+        <SaveRaw>0</SaveRaw>
+        <SaveNorm>0</SaveNorm>
+        <SaveThresh>0</SaveThresh>
+        <SaveCsv>0</SaveCsv>
+    </nxpConfig>
+</config>
