@@ -6,7 +6,7 @@
 #define NXPCUPRASPI_NXPCARFREESCALE_H
 
 
-#if defined(__MCUXPRESSO) || 1
+#if defined(__MCUXPRESSO)
 
 
 #include "NxpCarAbstract.h"

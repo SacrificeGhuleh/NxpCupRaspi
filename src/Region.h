@@ -12,7 +12,7 @@ namespace nxpbc {
      * @brief Struktura pro uložení nalezených oblastí v obraze
      */
     struct Region {
-        Region(int left = minLeft, int right = maxRight, int color = 0xff) {
+        Region(uint8_t left = minLeft, uint8_t right = maxRight, uint8_t color = 0xff) {
             if (left < minLeft) {
                 left = minLeft;
             }
@@ -25,15 +25,15 @@ namespace nxpbc {
             this->color = color;
         };
 
-        int left;
-        int right;
-        int color;
+        uint8_t left;
+        uint8_t right;
+        uint8_t color;
 
         /**
          * @brief Metoda pro získání velikostí oblasti
          * @return Velikost oblasti
          */
-        int getSize() const {
+        uint8_t getSize() const {
             return right - left;
         }
 
@@ -41,12 +41,13 @@ namespace nxpbc {
          * @brief Metoda pro získání středu oblasti
          * @return Střed oblasti
          */
-        int getCenter() const {
-            return (right + left) / 2;
+        uint8_t getCenter() const {
+            //return static_cast<uint8_t>((right + left) / 2);
+            return static_cast<uint8_t>((right + left) >> 1);
         }
 
-        const static int minLeft = BLACK_COUNT;
-        const static int maxRight = CAMERA_LINE_LENGTH - BLACK_COUNT - 1;
+        const static uint8_t minLeft = BLACK_COUNT;
+        const static uint8_t maxRight = CAMERA_LINE_LENGTH - BLACK_COUNT - 1;
     };
 }
 

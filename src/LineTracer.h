@@ -2,8 +2,11 @@
 // Created by Richard Zvonek on 21-Nov-18.
 //
 
-#include <list>
 #include <utility>
+#include <list>
+
+#include "NxpImage.h"
+#include "Region.h"
 
 #ifndef NXPCUPRASPI_LINETRACER_H
 #define NXPCUPRASPI_LINETRACER_H
@@ -30,7 +33,7 @@ namespace nxpbc {
          * @brief Přidání obrazu do fronty
          * @param image Obrazová data z kamery
          */
-        void addImage(const NxpImage image);
+        void addImage(NxpImage image);
 
 
         /**
@@ -68,7 +71,13 @@ namespace nxpbc {
         /**
          * @brief Fronta pro uložení čar.
          */
+
+#if defined(__linux__) || defined(WIN32)
         std::list<std::pair<NxpImage, Region>> imageRegionList_;
+#endif
+#if defined(__MCUXPRESSO)
+        std::list<Region> imageRegionList_;
+#endif
 
     };
 }

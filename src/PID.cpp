@@ -10,9 +10,9 @@
 
 namespace nxpbc {
     double PID::getPid(double requiredVal, double currentVal) {
-        double deltaTime = timer_->elapsed();
-        timer_->reset();
-        NXP_TRACEP("PID delta time: %f", deltaTime);
+        //double deltaTime = timer_->elapsed();
+        //timer_->reset();
+        //NXP_TRACEP("PID delta time: %f", deltaTime);
         errCurrent_ = requiredVal - currentVal;
 
         /*errPrev_ = errCurrent_;
@@ -23,11 +23,11 @@ namespace nxpbc {
 
         //proporcni * error + integral + derivativni *
         //double out = kp_ * error + iTerm_ + kd_ * (last_y - y_measured)/dt;
-        iTerm_ = iTerm_ + (iConst_ * errCurrent_ * deltaTime);
+        iTerm_ = iTerm_ + (iConst_ * errCurrent_ * 10/*deltaTime*/);
 
         iTerm_ = antiWindup();
 
-        double pidOutput = (errCurrent_ * pConst_) + iTerm_ + dConst_ * (prevVal_ - currentVal) / deltaTime;
+        double pidOutput = (errCurrent_ * pConst_) + iTerm_ + dConst_ * (prevVal_ - currentVal) / 10/*deltaTime*/;
         errPrev_ = errCurrent_;
         prevVal_ = currentVal;
         return pidOutput;

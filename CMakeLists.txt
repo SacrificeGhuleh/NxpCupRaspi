@@ -44,43 +44,43 @@ set(PCH
         src/pch.cpp)
 
 set(NXP_CODE
-        src/main.cpp
-        src/ImageType.h
-        src/LineTracer.cpp
-        src/LineTracer.h
-        src/Logger.h
-        src/motorsState.h
-        src/NxpCarAbstract.cpp
-        src/NxpCarAbstract.h
-        src/NxpCommunication.cpp
-        src/NxpCommunication.h
-        src/NxpCupXmlConfig.cpp
-        src/NxpCupXmlConfig.h
-        src/NxpDefines.h
-        src/NxpImage.cpp
-        src/NxpImage.h
-        src/NxpSerialPort.cpp
-        src/NxpSerialPort.h
-        src/pch.cpp
-        src/pch.h
-        src/PID.cpp
-        src/PID.h
-        src/Region.h
-        src/SerialPort.cpp
-        src/SerialPort.h
-        src/Settings.cpp
-        src/Settings.h
-        src/Singleton.cpp
-        src/Singleton.h
-        src/UDPServer.cpp
-        src/UDPServer.h
-        src/XmlReader.cpp
-        src/XmlReader.h
-        src/PID_New.cpp
-        src/PID_New.h
-        src/LinuxUDPServer.h
-        src/LinuxUDPServer.cpp
-        src/FreescaleUdpServer.cpp src/FreescaleUdpServer.h src/NxpCarRaspi.cpp src/NxpCarRaspi.h src/NxpCarFreescale.cpp src/NxpCarFreescale.h)
+    src/main.cpp
+    src/ImageType.h
+    src/LineTracer.cpp
+    src/LineTracer.h
+    src/Logger.h
+    src/motorsState.h
+    src/NxpCarAbstract.cpp
+    src/NxpCarAbstract.h
+    src/NxpCommunication.cpp
+    src/NxpCommunication.h
+    src/NxpCupXmlConfig.cpp
+    src/NxpCupXmlConfig.h
+    src/NxpDefines.h
+    src/NxpImageAbstract.cpp
+    src/NxpImageAbstract.h
+    src/NxpSerialPort.cpp
+    src/NxpSerialPort.h
+    src/pch.cpp
+    src/pch.h
+    src/PID.cpp
+    src/PID.h
+    src/Region.h
+    src/SerialPort.cpp
+    src/SerialPort.h
+    src/Settings.cpp
+    src/Settings.h
+    src/Singleton.cpp
+    src/Singleton.h
+    src/UDPServer.cpp
+    src/UDPServer.h
+    src/XmlReader.cpp
+    src/XmlReader.h
+    src/PID_New.cpp
+    src/PID_New.h
+    src/LinuxUDPServer.h
+    src/LinuxUDPServer.cpp
+    src/FreescaleUdpServer.cpp src/FreescaleUdpServer.h src/NxpCarRaspi.cpp src/NxpCarRaspi.h src/NxpCarFreescale.cpp src/NxpCarFreescale.h src/NxpImageFreescale.cpp src/NxpImageFreescale.h src/NxpImageRaspi.cpp src/NxpImageRaspi.h src/NxpImage.h src/NxpCar.h)
 
 
 set(INCLUDES

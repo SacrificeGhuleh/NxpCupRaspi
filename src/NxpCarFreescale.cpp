@@ -2,16 +2,7 @@
 // Created by zvone on 21-Feb-19.
 //
 
-#include "pch.h"
-#include "NxpCarFreescale.h"
-#include "motorsState.h"
-#include "LineTracer.h"
-#include "Logger.h"
-#include "PID.h"
-#include "NxpCommunication.h"
-#include "NxpImage.h"
-
-#if defined(__MCUXPRESSO) || 1
+#if defined(__MCUXPRESSO)
 namespace nxpbc {
 
     NxpCar::NxpCar() : NxpCarAbstract() {}
@@ -49,7 +40,8 @@ namespace nxpbc {
 
         const float leftRatio = static_cast<float>(leftDistance) / static_cast<float>(rightDistance);
         const float rightRatio = static_cast<float>(rightDistance) / static_cast<float>(leftDistance);
-        float ratioDiff = leftRatio - rightRatio;
+        //float ratioDiff = leftRatio - rightRatio;
+        float ratioDiff = rightRatio - leftRatio;
 
         //NxpCarAbstract::clipRatio(ratioDiff);
 
@@ -76,7 +68,7 @@ namespace nxpbc {
                 steer(steerSetting_);
                 break;
             case MotorsState::Ride:
-                //tfc_->setPWMMax(250);
+                tfc_->setPWMMax(250);
                 tfc_->MotorPWMOnOff(0b11);
                 tfc_->ServoOnOff(0b11);
 
