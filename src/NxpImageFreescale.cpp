@@ -10,28 +10,53 @@
 #include "ImageType.h"
 #include "Logger.h"
 
+#define PRINT_ORIGINAL    0
+#define PRINT_BLUR        0
+#define PRINT_CUT        0
+#define PRINT_NORM        0
+#define PRINT_THRESH    0
+
 namespace nxpbc {
 
     NxpImage::NxpImage(uint16_t (&rawImage)[CAMERA_LINE_LENGTH]) : NxpImageAbstract() {
-        uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
-        //NXP_TRACE("Original img" NL);
-        //NxpImageAbstract::printImg(rawImage);
-        slowMedianBlur(rawImage, blurImage, 3);
-        std::memcpy(rawImage, blurImage, sizeof(rawImage));
 
-        //NXP_TRACE("Blur img" NL);
-        //NxpImageAbstract::printImg(rawImage);
+
+#if PRINT_ORIGINAL
+        NXP_TRACE("Original img" NL);
+        NxpImageAbstract::printImg(rawImage);
+#endif
+
+        //uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
+        //slowMedianBlur(rawImage, blurImage, 3);
+        //std::memcpy(rawImage, blurImage, sizeof(rawImage));
+
+#if PRINT_BLUR
+        NXP_TRACE("Blur img" NL);
+        NxpImageAbstract::printImg(rawImage);
+#endif
+
         computeMinMax(rawImage);
         cut(rawImage);
-        //NXP_TRACE("Cut img" NL);
-        //NxpImageAbstract::printImg(rawImage);
+
+#if PRINT_CUT
+        NXP_TRACE("Cut img" NL);
+        NxpImageAbstract::printImg(rawImage);
+#endif
+
         normalize(rawImage, thresholdedImage_);
-        //NXP_TRACE("Normalized img" NL);
-        //NxpImageAbstract::printImg(thresholdedImage_);
+
+#if PRINT_NORM
+        NXP_TRACE("Normalized img" NL);
+        NxpImageAbstract::printImg(thresholdedImage_);
+#endif
+
         threshValue_ = getAverageThreshold(thresholdedImage_);
         threshold(thresholdedImage_, thresholdedImage_);
-        //NXP_TRACE("Thresh img" NL);
-        //NxpImageAbstract::printImg(thresholdedImage_);
+
+#if PRINT_THRESH
+        NXP_TRACE("Thresh img" NL);
+        NxpImageAbstract::printImg(thresholdedImage_);
+#endif
     }
 
     uint16_t NxpImage::at(uint8_t index, ImgType type) const {

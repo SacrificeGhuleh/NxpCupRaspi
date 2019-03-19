@@ -2,8 +2,8 @@
 // Created by Richard Zvonek on 21-Nov-18.
 //
 
-#include <deque>
 #include "pch.h"
+#include <deque>
 #include "NxpImageAbstract.h"
 #include "NxpDefines.h"
 #include "ImageType.h"
@@ -220,6 +220,10 @@ namespace nxpbc {
             //blurBuffer.clear();
             pixBuffer.pop_front();
         }
+    }
+
+    uint8_t NxpImageAbstract::atThresh(uint8_t index) const {
+        return thresholdedImage_[index];
     }
 /*
     uint16_t NxpImageAbstract::at(const uint16_t index, ImgType type) const {

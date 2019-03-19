@@ -49,7 +49,7 @@ namespace nxpbc {
          */
         unsigned int getRight() const;
 
-    private:
+        //private:
 
         /**
          * @brief Metoda pro výpočet vzdáleností čar
@@ -62,6 +62,8 @@ namespace nxpbc {
          * @return Vzdálenosti čar
          */
         Region getDistances(const NxpImage &image, bool hasPrevDistance);
+
+        bool findByPreviousIndex(const NxpImage &image, Region &foundRegion);
 
         /**
          * @brief Velikost historie čar.

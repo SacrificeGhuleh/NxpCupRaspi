@@ -27,7 +27,8 @@ namespace nxpbc {
 
         iTerm_ = antiWindup();
 
-        double pidOutput = (errCurrent_ * pConst_) + iTerm_ + dConst_ * (prevVal_ - currentVal) / 10/*deltaTime*/;
+        double pidOutput = (errCurrent_ * (pConst_ * debugAdcValue)) + iTerm_ +
+                           dConst_ * (prevVal_ - currentVal) / 10/*deltaTime*/;
         errPrev_ = errCurrent_;
         prevVal_ = currentVal;
         return pidOutput;

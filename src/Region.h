@@ -8,26 +8,44 @@
 #include "NxpDefines.h"
 
 namespace nxpbc {
-    /**
-     * @brief Struktura pro uložení nalezených oblastí v obraze
-     */
+/**
+ * @brief Struktura pro uložení nalezených oblastí v obraze
+ */
     struct Region {
-        Region(uint8_t left = minLeft, uint8_t right = maxRight, uint8_t color = 0xff) {
-            if (left < minLeft) {
-                left = minLeft;
-            }
-            if (right > maxRight) {
-                right = maxRight;
-            }
-
-            this->left = left;
-            this->right = right;
-            this->color = color;
-        };
 
         uint8_t left;
         uint8_t right;
         uint8_t color;
+
+        Region(uint8_t left = minLeft, uint8_t right = maxRight, uint8_t color =
+        COLOR_WHITE) {
+
+            uint8_t l = MIN(left, right);
+            uint8_t r = MAX(left, right);
+
+            left = l;
+            right = r;
+
+            if (left < minLeft) {
+                left = minLeft;
+            }
+            if (right < minLeft) {
+                right = minLeft;
+            }
+            if (right > maxRight) {
+                right = maxRight;
+            }
+            if (left > maxRight) {
+                left = maxRight;
+            }
+
+            //assert(left <= right);
+
+            this->left = left;
+            this->right = right;
+            this->color = color;
+        }
+
 
         /**
          * @brief Metoda pro získání velikostí oblasti
@@ -42,8 +60,15 @@ namespace nxpbc {
          * @return Střed oblasti
          */
         uint8_t getCenter() const {
-            //return static_cast<uint8_t>((right + left) / 2);
-            return static_cast<uint8_t>((right + left) >> 1);
+            return static_cast<uint8_t>((right + left) / 2);
+        }
+
+        bool isBlack() {
+            return color == COLOR_BLACK;
+        }
+
+        bool isWhite() {
+            return color == COLOR_WHITE;
         }
 
         const static uint8_t minLeft = BLACK_COUNT;

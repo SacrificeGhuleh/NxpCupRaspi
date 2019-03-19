@@ -1,7 +1,7 @@
 //
 // Created by Richard Zvonek on 07-Nov-18.
 //
-
+#if defined(__linux__) || defined(WIN32)
 #include "pch.h"
 #include "XmlReader.h"
 
@@ -71,3 +71,4 @@ namespace nxpbc {
         return std::strtol(getChildString(qXmlString, name).c_str(), nullptr, 0);
     }
 }
+#endif

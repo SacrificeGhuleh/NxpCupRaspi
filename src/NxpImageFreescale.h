@@ -27,7 +27,7 @@ namespace nxpbc {
         virtual void printImg(ImgType type);
 
     protected:
-        virtual void process();
+        virtual void process() override;
 
     private:
         //uint16_t thresholdedImage_[CAMERA_LINE_LENGTH];

@@ -6,10 +6,12 @@
 #define NXPCUPRASPI_NXPCARFREESCALE_H
 
 
-#if defined(__MCUXPRESSO)
+#if defined(__MCUXPRESSO) || 1
 
 
 #include "NxpCarAbstract.h"
+
+//class Enet;
 
 namespace nxpbc {
     class NxpCar : public NxpCarAbstract {
@@ -17,6 +19,8 @@ namespace nxpbc {
         NxpCar();
 
         virtual ~NxpCar();
+
+        //Enet *enet;
 
         void update() override;
     };

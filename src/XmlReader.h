@@ -1,7 +1,7 @@
 //
 // Created by Richard Zvonek on 07-Nov-18.
 //
-
+#if defined(__linux__) || defined(WIN32)
 #ifndef NXPCUPRASPI_XMLREADER_H
 #define NXPCUPRASPI_XMLREADER_H
 
@@ -64,4 +64,5 @@ namespace nxpbc {
         static std::vector<std::string> getChildVector(const std::string &qXmlString, const std::string &name);
     };
 }
+#endif
 #endif //NXPCUPRASPI_XMLREADER_H

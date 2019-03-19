@@ -14,6 +14,10 @@ namespace nxpbc {
 
 #ifndef __TFC_H
 
+    /*
+     * Visual studio
+     */
+
 #define CAMERA_LINE_LENGTH			128				// Number of camera pixels
 
 #define PWM_MINMAX					1000			// -/+ range for PWM
@@ -38,6 +42,10 @@ namespace nxpbc {
     // protocol start and stop byte
 #define STX							0x2
 #define ETX							0x3
+
+#ifndef andata_chnl_enum 
+enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
+#endif
 
 #else
 
@@ -205,7 +213,7 @@ namespace nxpbc {
     /**
      * @brief Hodnota PWM kroku při rozjezu
      */
-#define CONTROL_PWM_STEP 10
+#define CONTROL_PWM_STEP 100
 
     /**
      * @brief Maximální hodnota PWM pro jízdu
@@ -220,7 +228,7 @@ namespace nxpbc {
     /**
      * @brief Maximální natočení serva
      */
-#define SERVO_LR 250
+#define SERVO_LR 1000
 
     /**
      * @brief Minimální hodnota poměru pro zatáčení
@@ -235,7 +243,7 @@ namespace nxpbc {
     /**
      * @brief TODO
      */
-#define CONST_ERROR 1000.
+#define CONST_ERROR 10.
     /**
      * @brief TODO
      */

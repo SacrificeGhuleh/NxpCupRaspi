@@ -12,6 +12,7 @@
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 
+
 namespace nxpbc {
 
     enum class ImgType;
@@ -23,16 +24,19 @@ namespace nxpbc {
 
         virtual uint16_t at(uint8_t index, ImgType type) const = 0;
 
+        virtual uint8_t atThresh(uint8_t index) const;
+
         virtual void printImg(ImgType type) = 0;
 
         static void printImg(uint16_t (&img)[CAMERA_LINE_LENGTH]);
 
     protected :
-        //uint8_t thresholdedImage_[CAMERA_LINE_LENGTH];
         uint16_t thresholdedImage_[CAMERA_LINE_LENGTH];
+        //uint16_t thresholdedImage_[CAMERA_LINE_LENGTH];
         uint16_t min_;
         uint16_t max_;
         uint16_t threshValue_;
+
 
         virtual void process() = 0;
 

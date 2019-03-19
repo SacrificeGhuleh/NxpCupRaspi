@@ -5,6 +5,7 @@
 #ifndef NXPCUPRASPI_NXPCUPXMLCONFIG_H
 #define NXPCUPRASPI_NXPCUPXMLCONFIG_H
 
+#if defined(__linux__) || defined(WIN32)
 #include "XmlReader.h"
 
 namespace nxpbc {
@@ -165,4 +166,5 @@ namespace nxpbc {
 
     };
 }
+#endif
 #endif //NXPCUPRASPI_NXPCUPXMLCONFIG_H

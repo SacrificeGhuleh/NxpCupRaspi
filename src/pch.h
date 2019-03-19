@@ -13,13 +13,17 @@
 #include <cstring>
 #include <ctime>
 #include <chrono>
-#include <fstream>
-#include <iostream>
 #include <list>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
+
+//Arduino.h
+#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#define bitSet(value, bit) ((value) |= (1UL << (bit)))
+#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
+#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
+#define bit(b) (1UL << (b))
 
 //#if defined(WIN32) || defined(__linux__)
 #define millis() std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
@@ -30,6 +34,9 @@
     #include <tfc.h>
     #include <wiringPi.h>
     #include <wiringSerial.h>
+    #include <fstream>
+    #include <iostream>
+    #include <sstream>
 
     #define NL "\n"
 
@@ -49,6 +56,9 @@
     #include <netdb.h>
     #include <sys/socket.h>
     #include <arpa/inet.h>
+	#include <fstream>
+	#include <iostream>
+	#include <sstream>
 
     #define NL "\n"
 #endif

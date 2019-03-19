@@ -12,10 +12,10 @@ PID_new::PID_new(double *Input, double *Output, double *Setpoint,
     mySetpoint = Setpoint;
     inAuto = false;
 
-    PID_new::SetOutputLimits(0, 255);                //default output limit corresponds to
+    PID_new::SetOutputLimits(-1000, 1000);                //default output limit corresponds to
     //the arduino pwm limits
 
-    SampleTime = 100;                            //default Controller Sample Time is 0.1 seconds
+    SampleTime = 10;                            //default Controller Sample Time is 0.1 seconds
 
     PID_new::SetControllerDirection(ControllerDirection);
     PID_new::SetTunings(Kp, Ki, Kd, POn);
@@ -43,8 +43,8 @@ PID_new::PID_new(double *Input, double *Output, double *Setpoint,
  **********************************************************************************/
 bool PID_new::Compute() {
     if (!inAuto) return false;
-    long long int now = millis();
-    long long int timeChange = (now - lastTime);
+    long long int now = 0;//millis();
+    long long int timeChange = 10;//(now - lastTime);
     if (timeChange >= SampleTime) {
         /*Compute all the working error variables*/
         double input = *myInput;

@@ -6,11 +6,12 @@
 #define NXPCUPRASPI_NXPCAR_H
 
 #include "NxpDefines.h"
-
+#include "NxpSendFrame.h"
 class TFC;
 
 class PID_new;
 
+//struct SendData;
 
 namespace nxpbc {
     enum class MotorsState;
@@ -48,22 +49,24 @@ namespace nxpbc {
 
         TFC *getTfc();
 
+        SendData sendData_;
     protected:
         MotorsState motorsState_;
         bool running_;
-        int leftSpeed_;
-        int rightSpeed_;
-        const int servoChannel_;
-        int servoPos_;
+        uint16_t motorSpeed_;
+        //int leftSpeed_;
+        //int rightSpeed_;
+        const bool servoChannel_;
+        int16_t servoPos_;
         bool debounce_;
-        int debounceCounter_;
-        const int debounceCounterMax_;
-        int btns_;
-        unsigned long timestamp_;
-        unsigned long timestampDiff_;
-        int left_;
-        int right_;
-        unsigned short image_[CAMERA_LINE_LENGTH];
+        uint8_t debounceCounter_;
+        const uint8_t debounceCounterMax_;
+        uint8_t btns_;
+        uint16_t timestamp_;
+        uint16_t timestampDiff_;
+        uint8_t left_;
+        uint8_t right_;
+        //uint16_t image_[CAMERA_LINE_LENGTH];
         float steerSetting_;
 
         LineTracer *tracer_;
@@ -90,11 +93,12 @@ namespace nxpbc {
          */
         virtual void setRide();
 
-        /**
-         * @brief Metoda pro řízení serva pomocí hodnoty PID regulátoru
-         * @param pidValue Hodnota vypočtená PID regulátorem
-         */
-        virtual void steer(float pidValue);
+//
+//        /**
+//         * @brief Metoda pro řízení serva pomocí hodnoty PID regulátoru
+//         * @param pidValue Hodnota vypočtená PID regulátorem
+//         */
+//        virtual void steer(float pidValue);
 
 
         /**

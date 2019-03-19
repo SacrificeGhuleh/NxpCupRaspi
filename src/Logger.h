@@ -12,10 +12,10 @@
 #include <cstdio>
 #include "Singleton.h"*/
 
-#define NXP_PRINT_TRACE 1
-#define NXP_PRINT_INFO 1
-#define NXP_PRINT_WARN 1
-#define NXP_PRINT_ERROR 1
+#define NXP_PRINT_TRACE    0
+#define NXP_PRINT_INFO    0
+#define NXP_PRINT_WARN    1
+#define NXP_PRINT_ERROR    1
 
 namespace nxpbc {
     /*enum class LoggerLevel {
