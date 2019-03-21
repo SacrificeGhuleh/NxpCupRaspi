@@ -71,6 +71,14 @@ namespace nxpbc {
             return color == COLOR_WHITE;
         }
 
+        bool operator==(const Region &rhs) {
+            return this->left == rhs.left &&
+                   this->right == rhs.right &&
+                   this->color == rhs.color;
+        }
+
+        bool operator!=(const Region &rhs) { return !(*this == rhs); }
+
         const static uint8_t minLeft = BLACK_COUNT;
         const static uint8_t maxRight = CAMERA_LINE_LENGTH - BLACK_COUNT - 1;
     };

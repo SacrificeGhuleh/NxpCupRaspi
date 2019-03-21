@@ -16,6 +16,10 @@
 namespace nxpbc {
     class NxpCar : public NxpCarAbstract {
     public:
+    protected:
+        virtual void handleBtns(unsigned char buttons) override;
+
+    public:
         NxpCar();
 
         virtual ~NxpCar();

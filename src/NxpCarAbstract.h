@@ -7,6 +7,7 @@
 
 #include "NxpDefines.h"
 #include "NxpSendFrame.h"
+
 class TFC;
 
 class PID_new;
@@ -72,10 +73,10 @@ namespace nxpbc {
         LineTracer *tracer_;
         PID *pid_;
         TFC *tfc_;
-        PID_new *steerRegulator;
-        double steerRegulatorInput;
-        double steerRegulatorOutput;
-        double steerRegulatorTarget;
+        PID_new *steerRegulator_;
+        double steerRegulatorInput_;
+        double steerRegulatorOutput_;
+        double steerRegulatorTarget_;
 
         /**
          * @brief Metoda pro výpis aktuálního stavu autíčka do konzole.
@@ -86,7 +87,7 @@ namespace nxpbc {
          * @brief Metoda pro ovládání tlačítek na autíčku
          * @param buttons Stav tlačítek
          */
-        virtual void handleBtns(unsigned char buttons);
+        virtual void handleBtns(unsigned char buttons) = 0;
 
         /**
          * @brief Metoda pro předání parametrů jízdy autíčku.

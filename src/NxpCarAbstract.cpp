@@ -35,15 +35,16 @@ namespace nxpbc {
             steerSetting_{0.f},
             tracer_{new LineTracer(5)},
             pid_{new PID(CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, 1000.f)},
-            steerRegulatorInput{0.},
-            steerRegulatorOutput{0.},
-            steerRegulatorTarget{0.},
-            steerRegulator{new PID_new(&steerRegulatorInput, &steerRegulatorOutput, &steerRegulatorTarget, CONST_ERROR,
-                                       CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT)},
+            steerRegulatorInput_{0.},
+            steerRegulatorOutput_{0.},
+            steerRegulatorTarget_{0.},
+            steerRegulator_{
+                    new PID_new(&steerRegulatorInput_, &steerRegulatorOutput_, &steerRegulatorTarget_, CONST_ERROR,
+                                CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT)},
             tfc_{new TFC()} {
 
-        steerRegulator->SetOutputLimits(0., 1000.);
-        steerRegulator->SetSampleTime(10);
+        steerRegulator_->SetOutputLimits(-1000., 1000.);
+        steerRegulator_->SetSampleTime(10);
 
 
         tfc_->setPWMMax(static_cast<uint32_t>(CONTROL_DRIVE_MAX));
@@ -88,23 +89,24 @@ namespace nxpbc {
         leftSpeed = static_cast<uint16_t>(motorSpeed_ * tfc_->ReadPot_f(0) * leftTurningCoeficient);
         rightSpeed = static_cast<uint16_t>(motorSpeed_ * tfc_->ReadPot_f(0) * rightTurningCoeficient);
 
-
-        NXP_INFOP("Current riding info: leftMotor: %03d, rightMotor: %03d, servo: %03d, LTC: %f, RTC: %f"
-                          NL,
-                  static_cast<int>((float) leftSpeed * tfc_->ReadPot_f(0)),
-                  static_cast<int>((float) rightSpeed * tfc_->ReadPot_f(0)),
-                  NxpCarAbstract::servoPos_,
-                  leftTurningCoeficient,
-                  leftTurningCoeficient);
+        if (!(tracer_->unchangedRight_ && tracer_->unchangedLeft_)) { /*V zatacce*/
+            /*Pomalejsi prujezd*/
+            leftSpeed *= 0.75f;
+            rightSpeed *= 0.75f;
+            /*Ostrejsi rizeni*/
+            servoPos_ *= 1.2f;
+        }
 
         tfc_->setServo_i(servoChannel_, servoPos_);
-        tfc_->setMotorPWM_i(static_cast<int>(leftSpeed),
-                            static_cast<int>(rightSpeed));
+        tfc_->setMotorPWM_i(static_cast<int>(leftSpeed), static_cast<int>(rightSpeed));
+
+        sendData_.leftPwm = leftSpeed;
+        sendData_.rightPwm = rightSpeed;
+        sendData_.servo = servoPos_;
+        sendData_.motorSpeed = motorSpeed_;
+
     }
 
-    /*void NxpCarAbstract::steer(float pidValue) {
-        servoPos_ = static_cast<int>(pidValue);
-    }*/
 
     void NxpCarAbstract::clipRatio(float ratioDiff) {
         if (ratioDiff > CONTROL_MAX_RATIO) {
@@ -135,24 +137,24 @@ namespace nxpbc {
 
     }
 
-    void NxpCarAbstract::handleBtns(unsigned char buttons) {
-        debounce_ = true;
+/*void NxpCarAbstract::handleBtns(unsigned char buttons) {
+    debounce_ = true;
 #if defined(WIN32) || defined(__linux__)
-        if ((buttons & 0b01) && ((buttons & 0b01) != (btns_ & 0b01))) {
-            NXP_TRACE(BOLD(FRED("Zmackuto tlacitko A, konec programu"
-                              NL)));
-            running_ = false;
-        }
-#endif
-        if ((buttons & 0b10) && ((buttons & 0b10) != (btns_ & 0b10))) {
-            NXP_TRACE(BOLD(FRED("Zmackuto tlacitko B"
-                              NL)));
-            if (motorsState_ == nxpbc::MotorsState::Stay) {
-                motorsState_ = nxpbc::MotorsState::Start;
-            } else if (motorsState_ == nxpbc::MotorsState::Ride) {
-                motorsState_ = nxpbc::MotorsState::Stay;
-            }
-        }
-        btns_ = buttons;
+    if ((buttons & 0b01) && ((buttons & 0b01) != (btns_ & 0b01))) {
+        NXP_TRACE(BOLD(FRED("Zmackuto tlacitko A, konec programu"
+                          NL)));
+        running_ = false;
     }
+#endif
+    if ((buttons & 0b10) && ((buttons & 0b10) != (btns_ & 0b10))) {
+        NXP_TRACE(BOLD(FRED("Zmackuto tlacitko B"
+                          NL)));
+        if (motorsState_ == nxpbc::MotorsState::Stay) {
+            motorsState_ = nxpbc::MotorsState::Start;
+        } else if (motorsState_ == nxpbc::MotorsState::Ride) {
+            motorsState_ = nxpbc::MotorsState::Stay;
+        }
+    }
+    btns_ = buttons;
+}*/
 }

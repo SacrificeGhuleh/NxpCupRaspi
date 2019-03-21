@@ -62,24 +62,26 @@ namespace nxpbc {
         //NxpCarAbstract::clipRatio(ratioDiff);
 
         if (motorsState_ != MotorsState::Stay) {
-            steerRegulatorInput = ratioDiff * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);
-            steerSetting_ = static_cast<float>(steerRegulatorOutput);
+            steerRegulatorInput_ = ratioDiff * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);
+            steerSetting_ = static_cast<float>(steerRegulatorOutput_);
             pid_->debugAdcValue = (tfc_->ReadPot_f(1) + 1.f) /*/ 2.f*/;
             /*NXP_TRACEP("pConst: %f"
                                NL, pid_->pConst_ * pid_->debugAdcValue);*/
             //steerSetting_ = static_cast<float>(pid_->getPid(0.f, ratioDiff));
+            steerRegulator_->Compute();
         } else {
             steerSetting_ = 0.f;
         }
-        steerRegulator->Compute();
+
         switch (motorsState_) {
             case MotorsState::Stay:motorSpeed_ = 0;
-                steerRegulator->SetMode(MANUAL);
+                steerRegulator_->SetMode(MANUAL);
+                servoPos_ = 0;
                 //tfc_->MotorPWMOnOff(0b00);
                 //tfc_->ServoOnOff(0b00);
                 break;
             case MotorsState::Start:start();
-                steerRegulator->SetMode(AUTOMATIC);
+                steerRegulator_->SetMode(AUTOMATIC);
                 //tfc_->MotorPWMOnOff(0b11);
                 //tfc_->ServoOnOff(0b11);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
@@ -93,24 +95,62 @@ namespace nxpbc {
                 break;
         }
 
-        for (int i = 0; i < anLast; i++) {
+        for (uint8_t i = 0; i < anLast; i++) {
             sendData_.adc[i] = tfc_->ReadADC(i);
         }
 
-        for (int i = 0; i < SEND_REGIONS_NUM; i++) {
+        for (uint8_t i = 0; i < SEND_REGIONS_NUM; i++) {
             sendData_.regions[i] = Region();
         }
-        auto it = tracer_->imageRegionList_.begin();
-        for (int i = 0; i < MIN(SEND_REGIONS_NUM, tracer_->imageRegionList_.size()); i++) {
-            sendData_.regions[i] = *it;//Region(it->left, it->right, it->color);
-            ++it;
+
+        sendData_.regionsCount = MIN(SEND_REGIONS_NUM, tracer_->currentRegions_.size());
+        for (uint8_t i = 0; i < sendData_.regionsCount; i++) {
+            if (tracer_->currentRegions_.at(i).isWhite())
+                sendData_.regions[i] = tracer_->currentRegions_.at(i);
         }
 
-        sendData_.biggestRegion = Region(left_, right_, COLOR_WHITE);
 
+        sendData_.biggestRegion = Region(left_, right_, COLOR_WHITE);
+        sendData_.bits = 0x00;
+        sendData_.bits |= tracer_->computedRegion_ << 0;  //computed region
+        sendData_.bits |= (!(tracer_->unchangedRight_ && tracer_->unchangedLeft_)) << 1; //v zatacce
 
         setRide();
         //enet->send(&sendData_, sizeof(SendData));
+    }
+
+    void NxpCar::handleBtns(unsigned char buttons) {
+        debounce_ = true;
+        /*Tlacitko A*/
+        if ((buttons & 0b01) && ((buttons & 0b01) != (btns_ & 0b01))) {
+            NXP_WARN(BOLD(FRED("Resetuji rozpoznavani car"
+                             NL)));
+            tracer_->reset();
+
+        }
+
+        /*Tlacitko B*/
+        if ((buttons & 0b10) && ((buttons & 0b10) != (btns_ & 0b10))) {
+            NXP_TRACE(BOLD(FRED("Menim stav motoru"
+                              NL)));
+
+            /*Reset regulatoru*/
+            delete steerRegulator_;
+            steerRegulatorInput_ = 0.;
+            steerRegulatorOutput_ = 0.;
+            steerRegulatorTarget_ = 0.;
+
+            steerRegulator_ = new PID_new(&steerRegulatorInput_, &steerRegulatorOutput_, &steerRegulatorTarget_,
+                                          CONST_ERROR,
+                                          CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT);
+            /*Konec resetu*/
+            if (motorsState_ == nxpbc::MotorsState::Stay) {
+                motorsState_ = nxpbc::MotorsState::Start;
+            } else if (motorsState_ == nxpbc::MotorsState::Ride) {
+                motorsState_ = nxpbc::MotorsState::Stay;
+            }
+        }
+        btns_ = buttons;
     }
 };
 #endif

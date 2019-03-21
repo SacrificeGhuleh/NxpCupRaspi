@@ -262,6 +262,8 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
 
 #endif
 
+#define MAX_REGIONS_COUNT 25
+
 /**
  * @brief Makro pro safe delete
  */

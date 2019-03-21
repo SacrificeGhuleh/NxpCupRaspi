@@ -40,14 +40,14 @@ namespace nxpbc {
          * @brief Metoda pro získání vzdálenosti levé čáry
          * @return Vzdálenost levé čáry
          */
-        unsigned int getLeft() const;
+        unsigned int getLeft();
 
 
         /**
          * @brief Metoda pro získání vzdálenosti pravé čáry
          * @return Vzdálenost pravé čáry
          */
-        unsigned int getRight() const;
+        unsigned int getRight();
 
         //private:
 
@@ -65,10 +65,18 @@ namespace nxpbc {
 
         bool findByPreviousIndex(const NxpImage &image, Region &foundRegion);
 
+
+        std::vector<nxpbc::Region> currentRegions_;
         /**
          * @brief Velikost historie čar.
          */
         int listSize_;
+
+        bool computedRegion_;
+        bool unchangedLeft_;
+        bool unchangedRight_;
+
+        void reset();
 
         /**
          * @brief Fronta pro uložení čar.
