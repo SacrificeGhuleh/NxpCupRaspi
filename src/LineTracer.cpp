@@ -22,7 +22,7 @@ namespace nxpbc {
     LineTracer::LineTracer(const int listSize) : listSize_{listSize} {
     }
 
-    void LineTracer::addImage(const NxpImage image) {
+    void LineTracer::addImage(const NxpImage image, bool forceSearchRegions) {
         bool hasPrevLine = true;
         if (imageRegionList_.size() > listSize_) {
             imageRegionList_.pop_front();
@@ -34,15 +34,15 @@ namespace nxpbc {
         //Region biggestWhiteRegion = getDistances(image, hasPrevLine);
 
 #if defined(__linux__) || defined(WIN32)
-        imageRegionList_.emplace_back(image, getDistances(image, hasPrevLine));
+        imageRegionList_.emplace_back(image, getDistances(image, hasPrevLine, forceSearchRegions));
 #endif
 
 #if defined(__MCUXPRESSO)
-        imageRegionList_.emplace_back(getDistances(image, hasPrevLine));
+        imageRegionList_.emplace_back(getDistances(image, hasPrevLine,forceSearchRegions));
 #endif
     }
 
-    Region LineTracer::getDistances(const NxpImage &image, bool hasPrevDistance) {
+    Region LineTracer::getDistances(const NxpImage &image, bool hasPrevDistance, bool forceSearchRegions) {
 
         //std::vector<nxpbc::Region> currentRegions_;
         currentRegions_.clear();
@@ -56,47 +56,59 @@ namespace nxpbc {
             if (regionByPreviousIndexFound) {
                 currentRegions_.emplace_back(biggestWhiteRegion);
                 computedRegion_ = false;
-                return biggestWhiteRegion;
+                if (!forceSearchRegions)
+                    return biggestWhiteRegion;
             }
         }
-
-        NXP_TRACE("Hledam indexy podle regionu"
-                          NL);
-        uint8_t currentColor = static_cast<uint8_t>(image.atThresh(Region::minLeft));
-        currentRegions_.emplace_back(nxpbc::Region({Region::minLeft, Region::minLeft, currentColor}));
 
 
         uint8_t searchLeftIdx;
         uint8_t searchRightIdx;
 
         if (regionByPreviousIndexFound) {
-            searchLeftIdx = biggestWhiteRegion.left;
-            searchRightIdx = biggestWhiteRegion.right;
+            searchLeftIdx = biggestWhiteRegion.left + 1;
+            searchRightIdx = biggestWhiteRegion.right - 1;
         } else {
-            //searchLeftIdx = Region::minLeft;
-            //searchRightIdx = Region::maxRight;
-            searchLeftIdx = 0;
-            searchRightIdx = CAMERA_LINE_LENGTH - 1;
+            searchLeftIdx = Region::minLeft;
+            searchRightIdx = Region::maxRight;
+            //searchLeftIdx = 0;
+            //searchRightIdx = CAMERA_LINE_LENGTH - 1;
         }
 
-        for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
-            /*NXP_TRACEP("idx: %03d\tpix: %03d"
-                               NL, i, image.atThresh(i, ImgType::Thresholded));*/
-            if (currentColor != image.atThresh(i)) {
-                if (currentRegions_.size() > MAX_REGIONS_COUNT) {
-                    NXP_WARN("Nalezen vysoky pocet oblasti, konec hledani."
-                                     NL);
-                    break;
-                }
-                currentRegions_.at(currentRegions_.size() - 1).right = i;
-                currentRegions_.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
-            }
-            currentColor = static_cast<uint8_t>(image.atThresh(i));
+
+        getRegions(image, searchLeftIdx, searchRightIdx);
+
+//        NXP_TRACE("Hledam indexy podle regionu"
+//                          NL);
+//        uint8_t currentColor = static_cast<uint8_t>(image.atThresh(searchLeftIdx));
+//        currentRegions_.emplace_back(nxpbc::Region({searchLeftIdx, searchLeftIdx, currentColor}));
+//
+//        for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
+//            /*NXP_TRACEP("idx: %03d\tpix: %03d"
+//                               NL, i, image.atThresh(i, ImgType::Thresholded));*/
+//            if (currentColor != image.atThresh(i)) {
+//                if (currentRegions_.size() > MAX_REGIONS_COUNT) {
+//                    NXP_WARN("Nalezen vysoky pocet oblasti, konec hledani."
+//                                     NL);
+//                    break;
+//                }
+//                currentRegions_.at(currentRegions_.size() - 1).right = i;
+//                currentRegions_.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
+//            }
+//            currentColor = static_cast<uint8_t>(image.atThresh(i));
+//        }
+//
+//        currentRegions_.at(currentRegions_.size() - 1).right = Region::maxRight;
+//        currentRegions_.at(0).left = Region::minLeft;
+
+        if (regionByPreviousIndexFound) {
+            currentRegions_.at(currentRegions_.size() - 1).right = biggestWhiteRegion.right;
+            currentRegions_.at(0).left = biggestWhiteRegion.left;
+        } else {
+            currentRegions_.at(currentRegions_.size() - 1).right = CAMERA_LINE_LENGTH - 1;
+            currentRegions_.at(0).left = 0;
 
         }
-        currentRegions_.at(currentRegions_.size() - 1).right = Region::maxRight;
-        currentRegions_.at(0).left = Region::minLeft;
-
         //biggestWhiteRegion = currentRegions_.at(0);
         if (!regionByPreviousIndexFound) {
             biggestWhiteRegion = {Region::minLeft, Region::minLeft, COLOR_WHITE};
@@ -351,8 +363,29 @@ namespace nxpbc {
 
     void LineTracer::reset() {
         this->imageRegionList_.clear();
+    }
 
+    std::vector<Region> LineTracer::getRegions(const NxpImage &image, uint8_t searchLeftIdx, uint8_t searchRightIdx) {
+        NXP_TRACE("Hledam indexy podle regionu"
+                          NL);
+        uint8_t currentColor = static_cast<uint8_t>(image.atThresh(searchLeftIdx));
+        currentRegions_.emplace_back(nxpbc::Region({searchLeftIdx, searchLeftIdx, currentColor}));
 
+        for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
+            /*NXP_TRACEP("idx: %03d\tpix: %03d"
+                               NL, i, image.atThresh(i, ImgType::Thresholded));*/
+            if (currentColor != image.atThresh(i)) {
+                if (currentRegions_.size() > MAX_REGIONS_COUNT) {
+                    NXP_WARN("Nalezen vysoky pocet oblasti, konec hledani."
+                                     NL);
+                    break;
+                }
+                currentRegions_.at(currentRegions_.size() - 1).right = i;
+                currentRegions_.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
+            }
+            currentColor = static_cast<uint8_t>(image.atThresh(i));
+        }
+        return currentRegions_;
     }
 
 }

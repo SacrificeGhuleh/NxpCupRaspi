@@ -18,7 +18,8 @@
 
 namespace nxpbc {
 
-    NxpCar::NxpCar() : NxpCarAbstract() {
+    NxpCar::NxpCar() :
+            NxpCarAbstract() {
         //enet = new Enet();
         //enet->init(256, 4444);
     }
@@ -36,7 +37,9 @@ namespace nxpbc {
                            NL, voltage);
 
         if (!debounce_) {
-            handleBtns(/*data_->push_sw*/0 | (tfc_->getPushButton(1) << 1) | (tfc_->getPushButton(0)));
+            handleBtns(
+                    /*data_->push_sw*/0 | (tfc_->getPushButton(1) << 1)
+                                      | (tfc_->getPushButton(0)));
         } else {
             if (++debounceCounter_ >= debounceCounterMax_) {
                 debounceCounter_ = 0;
@@ -46,7 +49,59 @@ namespace nxpbc {
 
         tfc_->getImage(0b00, sendData_.image, CAMERA_LINE_LENGTH);
 
-        tracer_->addImage(NxpImage(sendData_.image));
+        if (tfc_->getDIPSwitch() & 0b00000010) {
+            tfc_->setLED(0, 0);
+            tfc_->setLED(1, 0);
+            tfc_->setLED(2, 0);
+            tfc_->setLED(3, 0);
+
+            tracer_->addImage(NxpImage(sendData_.image), true);
+
+            uint8_t blackRegionsCount = 0, whiteRegionsCount = 0;
+
+            for (Region &r : tracer_->currentRegions_) {
+                if (r.isBlack()) {
+                    blackRegionsCount++;
+                } else {
+                    whiteRegionsCount++;
+                }
+            }
+            tfc_->setLED(0, 1);
+
+            int foundLines = tracer_->computedRegion_ ? 1 : 2;
+
+            tfc_->setLED(4, inSpeedCheckZone_);
+
+            if (whiteRegionsCount > 3) {
+                if (prevZonesFoundCount_ == whiteRegionsCount) {
+                    if (speedCheckZoneDebounce_ != 0)
+                        speedCheckZoneDebounce_--;
+
+                } else {
+                    tfc_->setLED(2, 1);
+                    if (speedCheckZoneDebounce_ != 0) {
+                        speedCheckZoneDebounce_--;
+                    } else {
+                        inSpeedCheckZone_ = !inSpeedCheckZone_;
+                        speedCheckZoneDebounce_ = 40;
+
+                    }
+                }
+            }
+            prevZonesFoundCount_ = whiteRegionsCount;
+            tfc_->setLED(4, inSpeedCheckZone_);
+
+            if (inSpeedCheckZone_) {
+                tfc_->setLEDs(0xFF);
+            }
+
+        } else {
+            tracer_->addImage(NxpImage(sendData_.image), false);
+            tfc_->setLED(0, 0);
+            tfc_->setLED(1, 0);
+            tfc_->setLED(2, 0);
+            tfc_->setLED(3, 0);
+        }
 
         left_ = tracer_->getLeft();
         right_ = tracer_->getRight();
@@ -54,19 +109,22 @@ namespace nxpbc {
         const int leftDistance = left_;
         const int rightDistance = CAMERA_LINE_LENGTH - right_;
 
-        const float leftRatio = static_cast<float>(leftDistance) / static_cast<float>(rightDistance);
-        const float rightRatio = static_cast<float>(rightDistance) / static_cast<float>(leftDistance);
+        const float leftRatio = static_cast<float>(leftDistance)
+                                / static_cast<float>(rightDistance);
+        const float rightRatio = static_cast<float>(rightDistance)
+                                 / static_cast<float>(leftDistance);
         //float ratioDiff = leftRatio - rightRatio;
         float ratioDiff = rightRatio - leftRatio;
 
         //NxpCarAbstract::clipRatio(ratioDiff);
 
         if (motorsState_ != MotorsState::Stay) {
-            steerRegulatorInput_ = ratioDiff * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);
+            steerRegulatorInput_ = ratioDiff
+                                   * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);
             steerSetting_ = static_cast<float>(steerRegulatorOutput_);
             pid_->debugAdcValue = (tfc_->ReadPot_f(1) + 1.f) /*/ 2.f*/;
             /*NXP_TRACEP("pConst: %f"
-                               NL, pid_->pConst_ * pid_->debugAdcValue);*/
+             NL, pid_->pConst_ * pid_->debugAdcValue);*/
             //steerSetting_ = static_cast<float>(pid_->getPid(0.f, ratioDiff));
             steerRegulator_->Compute();
         } else {
@@ -74,20 +132,20 @@ namespace nxpbc {
         }
 
         switch (motorsState_) {
-            case MotorsState::Stay:motorSpeed_ = 0;
+            case MotorsState::Stay: motorSpeed_ = 0;
                 steerRegulator_->SetMode(MANUAL);
                 servoPos_ = 0;
                 //tfc_->MotorPWMOnOff(0b00);
                 //tfc_->ServoOnOff(0b00);
                 break;
-            case MotorsState::Start:start();
+            case MotorsState::Start: start();
                 steerRegulator_->SetMode(AUTOMATIC);
                 //tfc_->MotorPWMOnOff(0b11);
                 //tfc_->ServoOnOff(0b11);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
 //                steer(steerSetting_);
                 break;
-            case MotorsState::Ride:tfc_->setPWMMax(250);
+            case MotorsState::Ride: tfc_->setPWMMax(250);
                 //tfc_->MotorPWMOnOff(0b11);
                 //tfc_->ServoOnOff(0b11);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
@@ -103,12 +161,12 @@ namespace nxpbc {
             sendData_.regions[i] = Region();
         }
 
-        sendData_.regionsCount = MIN(SEND_REGIONS_NUM, tracer_->currentRegions_.size());
+        sendData_.regionsCount = MIN(SEND_REGIONS_NUM,
+                                     tracer_->currentRegions_.size());
         for (uint8_t i = 0; i < sendData_.regionsCount; i++) {
             if (tracer_->currentRegions_.at(i).isWhite())
                 sendData_.regions[i] = tracer_->currentRegions_.at(i);
         }
-
 
         sendData_.biggestRegion = Region(left_, right_, COLOR_WHITE);
         sendData_.bits = 0x00;
@@ -140,7 +198,8 @@ namespace nxpbc {
             steerRegulatorOutput_ = 0.;
             steerRegulatorTarget_ = 0.;
 
-            steerRegulator_ = new PID_new(&steerRegulatorInput_, &steerRegulatorOutput_, &steerRegulatorTarget_,
+            steerRegulator_ = new PID_new(&steerRegulatorInput_,
+                                          &steerRegulatorOutput_, &steerRegulatorTarget_,
                                           CONST_ERROR,
                                           CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT);
             /*Konec resetu*/

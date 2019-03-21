@@ -52,6 +52,9 @@ namespace nxpbc {
 
         SendData sendData_;
     protected:
+        uint8_t prevZonesFoundCount_;
+        bool inSpeedCheckZone_;
+        uint8_t speedCheckZoneDebounce_;
         MotorsState motorsState_;
         bool running_;
         uint16_t motorSpeed_;

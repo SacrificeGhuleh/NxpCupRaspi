@@ -137,7 +137,13 @@ namespace nxpbc {
 
         tfc_->getImage(0b00, image_, CAMERA_LINE_LENGTH);
 
-        tracer_->addImage(NxpImage(image_));
+        if (tfc_->getDIPSwitch() & 0b00000010) {
+            tracer_->addImage(NxpImage(image_), true);
+            tfc_->setLED(1, 1);
+        } else {
+            tracer_->addImage(NxpImage(image_), false);
+            tfc_->setLED(1, 0);
+        }
 
         left_ = tracer_->getLeft();
         right_ = tracer_->getRight();
@@ -161,13 +167,11 @@ namespace nxpbc {
         }
 
         switch (motorsState_) {
-            case nxpbc::MotorsState::Stay:
-                leftSpeed_ = rightSpeed_ = 0;
+            case nxpbc::MotorsState::Stay:leftSpeed_ = rightSpeed_ = 0;
                 tfc_->MotorPWMOnOff(0b00);
                 tfc_->ServoOnOff(0b00);
                 break;
-            case nxpbc::MotorsState::Start:
-                start();
+            case nxpbc::MotorsState::Start:start();
                 tfc_->MotorPWMOnOff(0b11);
                 tfc_->ServoOnOff(0b11);;
 

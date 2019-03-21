@@ -33,7 +33,7 @@ namespace nxpbc {
          * @brief Přidání obrazu do fronty
          * @param image Obrazová data z kamery
          */
-        void addImage(NxpImage image);
+        void addImage(NxpImage image, bool forceSearchRegions = false);
 
 
         /**
@@ -61,10 +61,12 @@ namespace nxpbc {
          * @param hasPrevDistance True, pokud existují vzdálenosti z předchozí iterace
          * @return Vzdálenosti čar
          */
-        Region getDistances(const NxpImage &image, bool hasPrevDistance);
+        Region getDistances(const NxpImage &image, bool hasPrevDistance, bool forceSearchRegions = false);
 
         bool findByPreviousIndex(const NxpImage &image, Region &foundRegion);
 
+        std::vector<Region>
+        getRegions(const NxpImage &image, uint8_t leftIndex = 0, uint8_t rightIndex = CAMERA_LINE_LENGTH - 1);
 
         std::vector<nxpbc::Region> currentRegions_;
         /**
