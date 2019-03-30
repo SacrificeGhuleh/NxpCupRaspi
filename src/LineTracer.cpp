@@ -8,6 +8,7 @@
 #include "Settings.h"
 #include "Logger.h"
 #include "ImageType.h"
+#include "NxpMath.h"
 
 namespace nxpbc {
 
@@ -19,7 +20,10 @@ namespace nxpbc {
 #define REGION_COMPUTED_SIZE (REGION_STANDARD_SIZE*REGION_SIZE_COEFICIENT)
 #define REGION_DISTANCE 30
 
-    LineTracer::LineTracer(const int listSize) : listSize_{listSize} {
+    LineTracer::LineTracer(const int listSize) :
+    		listSize_{listSize},
+			blackRegionsCount_{0},
+    		whiteRegionsCount_{0} {
     }
 
     void LineTracer::addImage(const NxpImage image, bool forceSearchRegions) {
@@ -33,12 +37,12 @@ namespace nxpbc {
 
         //Region biggestWhiteRegion = getDistances(image, hasPrevLine);
 
-#if defined(__linux__) || defined(WIN32)
+#if 0//defined(__linux__) || defined(WIN32)
         imageRegionList_.emplace_back(image, getDistances(image, hasPrevLine, forceSearchRegions));
 #endif
 
-#if defined(__MCUXPRESSO)
-        imageRegionList_.emplace_back(getDistances(image, hasPrevLine,forceSearchRegions));
+#if 1//defined(__MCUXPRESSO)
+        imageRegionList_.emplace_back(getDistances(image, hasPrevLine, forceSearchRegions));
 #endif
     }
 
@@ -47,7 +51,7 @@ namespace nxpbc {
         //std::vector<nxpbc::Region> currentRegions_;
         currentRegions_.clear();
         Region biggestWhiteRegion;
-
+		computedRegion_ = false;
         uint8_t right, left;
         bool regionByPreviousIndexFound = false;
         if (hasPrevDistance) {
@@ -55,7 +59,9 @@ namespace nxpbc {
             regionByPreviousIndexFound = findByPreviousIndex(image, biggestWhiteRegion);
             if (regionByPreviousIndexFound) {
                 currentRegions_.emplace_back(biggestWhiteRegion);
-                computedRegion_ = false;
+                //computedRegion_ = false;
+                whiteRegionsCount_ = 1;
+                blackRegionsCount_ = 2;
                 if (!forceSearchRegions)
                     return biggestWhiteRegion;
             }
@@ -77,30 +83,6 @@ namespace nxpbc {
 
 
         getRegions(image, searchLeftIdx, searchRightIdx);
-
-//        NXP_TRACE("Hledam indexy podle regionu"
-//                          NL);
-//        uint8_t currentColor = static_cast<uint8_t>(image.atThresh(searchLeftIdx));
-//        currentRegions_.emplace_back(nxpbc::Region({searchLeftIdx, searchLeftIdx, currentColor}));
-//
-//        for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
-//            /*NXP_TRACEP("idx: %03d\tpix: %03d"
-//                               NL, i, image.atThresh(i, ImgType::Thresholded));*/
-//            if (currentColor != image.atThresh(i)) {
-//                if (currentRegions_.size() > MAX_REGIONS_COUNT) {
-//                    NXP_WARN("Nalezen vysoky pocet oblasti, konec hledani."
-//                                     NL);
-//                    break;
-//                }
-//                currentRegions_.at(currentRegions_.size() - 1).right = i;
-//                currentRegions_.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
-//            }
-//            currentColor = static_cast<uint8_t>(image.atThresh(i));
-//        }
-//
-//        currentRegions_.at(currentRegions_.size() - 1).right = Region::maxRight;
-//        currentRegions_.at(0).left = Region::minLeft;
-
         if (regionByPreviousIndexFound) {
             currentRegions_.at(currentRegions_.size() - 1).right = biggestWhiteRegion.right;
             currentRegions_.at(0).left = biggestWhiteRegion.left;
@@ -114,17 +96,17 @@ namespace nxpbc {
             biggestWhiteRegion = {Region::minLeft, Region::minLeft, COLOR_WHITE};
         }
 
-        uint8_t whiteRegionsCount = 0;
-        uint8_t blackRegionsCount = 0;
+        whiteRegionsCount_ = 0;
+        blackRegionsCount_ = 0;
 
         for (Region &r : currentRegions_) {
             if (r.isWhite()) {  //if white
-                whiteRegionsCount++;
+                whiteRegionsCount_++;
                 if ((r.getSize() > biggestWhiteRegion.getSize())) {
                     biggestWhiteRegion = r;
                 }
             } else {            //if black
-                blackRegionsCount++;
+                blackRegionsCount_++;
             }
         }
 
@@ -132,7 +114,7 @@ namespace nxpbc {
         /*
          * pokud nasel jen jednu caru
          * */
-        computedRegion_ = false;
+        //computedRegion_ = false;
         bool hasLeftLine = false;
         bool hasRightLine = false;
         for (Region &r : currentRegions_) {
@@ -154,7 +136,6 @@ namespace nxpbc {
             } else {
                 biggestWhiteRegion.left = biggestWhiteRegion.right - REGION_DISTANCE - REGION_COMPUTED_SIZE;
                 biggestWhiteRegion.right = biggestWhiteRegion.right;
-
             }
         }
 
@@ -192,14 +173,14 @@ namespace nxpbc {
 
         unsigned int sum = 0;
         for (auto idx : imageRegionList_) {
-#if defined(__linux__) || defined(WIN32)
+#if 0//defined(__linux__) || defined(WIN32)
             rightLines.emplace_back(idx.second.right);
             sum += idx.second.right;
 #endif
-#if defined(__MCUXPRESSO)
+#if 1//defined(__MCUXPRESSO)
 
             rightLines.emplace_back(idx.right);
-        sum += idx.right;
+            sum += idx.right;
 #endif
         }
 
@@ -227,14 +208,14 @@ namespace nxpbc {
 
         unsigned int sum = 0;
         for (auto idx : imageRegionList_) {
-#if defined(__linux__) || defined(WIN32)
+#if 0//defined(__linux__) || defined(WIN32)
             leftLines.emplace_back(idx.second.left);
             sum += idx.second.left;
 #endif
-#if defined(__MCUXPRESSO)
+#if 1//defined(__MCUXPRESSO)
 
             leftLines.emplace_back(idx.left);
-        sum += idx.left;
+            sum += idx.left;
 #endif
         }
 
@@ -287,10 +268,10 @@ namespace nxpbc {
          *
          */
 
-#if defined(__linux__) || defined(WIN32)
+#if 0//defined(__linux__) || defined(WIN32)
         Region previousRegion = imageRegionList_.back().second;
 #endif
-#if defined(__MCUXPRESSO)
+#if 1//defined(__MCUXPRESSO)
         Region previousRegion = imageRegionList_.back();
 #endif
 
@@ -369,7 +350,7 @@ namespace nxpbc {
         NXP_TRACE("Hledam indexy podle regionu"
                           NL);
         uint8_t currentColor = static_cast<uint8_t>(image.atThresh(searchLeftIdx));
-        currentRegions_.emplace_back(nxpbc::Region({searchLeftIdx, searchLeftIdx, currentColor}));
+        currentRegions_.emplace_back(Region({searchLeftIdx, searchLeftIdx, currentColor}));
 
         for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
             /*NXP_TRACEP("idx: %03d\tpix: %03d"
@@ -387,5 +368,50 @@ namespace nxpbc {
         }
         return currentRegions_;
     }
+
+    std::pair<uint8_t, uint8_t> LineTracer::getDistancesPair() {
+        std::pair<uint8_t, uint8_t> currentDistances = {0, 0};
+
+        std::pair<uint, uint> sums = {0, 0};
+
+        /*
+         * Kvuli medianu dve pole
+         * */
+        std::vector<uint8_t> leftDistances;
+        std::vector<uint8_t> rightDistances;
+
+        leftDistances.reserve(imageRegionList_.size());
+        rightDistances.reserve(imageRegionList_.size());
+
+        for (auto idx : imageRegionList_) {
+            leftDistances.emplace_back(idx.left);
+            rightDistances.emplace_back(idx.right);
+
+            sums.first += idx.left;
+            sums.second += idx.right;
+        }
+
+        currentAverage_.first = sums.first / imageRegionList_.size();
+        currentAverage_.second = sums.second / imageRegionList_.size();
+
+        currentMedian_.first = median<uint8_t>(leftDistances);
+        currentMedian_.second = median<uint8_t>(rightDistances);
+
+
+        unchangedLeft_ = ((imageRegionList_.back().left >= currentAverage_.first - TOLERANCE) &&
+                          (imageRegionList_.back().left <= currentAverage_.first + TOLERANCE));
+        unchangedRight_ = ((imageRegionList_.back().right >= currentAverage_.second - TOLERANCE) &&
+                           (imageRegionList_.back().right <= currentAverage_.second + TOLERANCE));
+
+        currentDistances.first = imageRegionList_.back().left;
+        currentDistances.second = imageRegionList_.back().right;
+
+        return currentDistances;
+    }
+
+    size_t LineTracer::getListSize() {
+        return imageRegionList_.size();
+    }
+
 
 }

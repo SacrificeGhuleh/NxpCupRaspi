@@ -18,10 +18,10 @@
 
 namespace nxpbc {
 
+#define DIVERSITY_COEFICIENT 100
+
     NxpCar::NxpCar() :
             NxpCarAbstract() {
-        //enet = new Enet();
-        //enet->init(256, 4444);
     }
 
     NxpCar::~NxpCar() {
@@ -37,9 +37,7 @@ namespace nxpbc {
                            NL, voltage);
 
         if (!debounce_) {
-            handleBtns(
-                    /*data_->push_sw*/0 | (tfc_->getPushButton(1) << 1)
-                                      | (tfc_->getPushButton(0)));
+            handleBtns(0 | (tfc_->getPushButton(1) << 1) | (tfc_->getPushButton(0)));
         } else {
             if (++debounceCounter_ >= debounceCounterMax_) {
                 debounceCounter_ = 0;
@@ -49,14 +47,19 @@ namespace nxpbc {
 
         tfc_->getImage(0b00, sendData_.image, CAMERA_LINE_LENGTH);
 
+        NxpImage nxpImage(sendData_.image);
+
+        sendData_.imageDiversity = nxpImage.getDiversity_();
+
         if (tfc_->getDIPSwitch() & 0b00000010) {
             tfc_->setLED(0, 0);
             tfc_->setLED(1, 0);
             tfc_->setLED(2, 0);
             tfc_->setLED(3, 0);
 
-            tracer_->addImage(NxpImage(sendData_.image), true);
-
+            //if (nxpImage.getDiversity_() < DIVERSITY_COEFICIENT && tracer_->getListSize() > 0) {
+                tracer_->addImage(nxpImage, true);
+            //}
             uint8_t blackRegionsCount = 0, whiteRegionsCount = 0;
 
             for (Region &r : tracer_->currentRegions_) {
@@ -96,15 +99,21 @@ namespace nxpbc {
             }
 
         } else {
-            tracer_->addImage(NxpImage(sendData_.image), false);
+            //if (nxpImage.getDiversity_() < DIVERSITY_COEFICIENT && tracer_->getListSize() > 0) {
+                tracer_->addImage(nxpImage, false);
+            //}
             tfc_->setLED(0, 0);
             tfc_->setLED(1, 0);
             tfc_->setLED(2, 0);
             tfc_->setLED(3, 0);
         }
 
-        left_ = tracer_->getLeft();
-        right_ = tracer_->getRight();
+        auto dst = tracer_->getDistancesPair();
+        left_ = dst.first;
+        right_ = dst.second;
+
+        //left_ = tracer_->getLeft();
+        //right_ = tracer_->getRight();
 
         const int leftDistance = left_;
         const int rightDistance = CAMERA_LINE_LENGTH - right_;
@@ -116,15 +125,19 @@ namespace nxpbc {
         //float ratioDiff = leftRatio - rightRatio;
         float ratioDiff = rightRatio - leftRatio;
 
+        sendData_.error = ratioDiff;
+
         //NxpCarAbstract::clipRatio(ratioDiff);
 
         if (motorsState_ != MotorsState::Stay) {
-            steerRegulatorInput_ = ratioDiff
-                                   * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);
+            /*steerRegulatorInput_ = ratioDiff
+                                   * ((tfc_->ReadPot_f(1) + 1.f) / 2.f * 100);*/
+            steerRegulatorInput_ = ratioDiff;
             steerSetting_ = static_cast<float>(steerRegulatorOutput_);
-            pid_->debugAdcValue = (tfc_->ReadPot_f(1) + 1.f) /*/ 2.f*/;
+            //pid_->debugAdcValue = (tfc_->ReadPot_f(1) + 1.f) /*/ 2.f*/;
+            pid_->debugAdcValue = (45.f) /*/ 2.f*/;
             /*NXP_TRACEP("pConst: %f"
-             NL, pid_->pConst_ * pid_->debugAdcValue);*/
+            NL, pid_->pConst_ * pid_->debugAdcValue);*/
             //steerSetting_ = static_cast<float>(pid_->getPid(0.f, ratioDiff));
             steerRegulator_->Compute();
         } else {
@@ -153,25 +166,7 @@ namespace nxpbc {
                 break;
         }
 
-        for (uint8_t i = 0; i < anLast; i++) {
-            sendData_.adc[i] = tfc_->ReadADC(i);
-        }
-
-        for (uint8_t i = 0; i < SEND_REGIONS_NUM; i++) {
-            sendData_.regions[i] = Region();
-        }
-
-        sendData_.regionsCount = MIN(SEND_REGIONS_NUM,
-                                     tracer_->currentRegions_.size());
-        for (uint8_t i = 0; i < sendData_.regionsCount; i++) {
-            if (tracer_->currentRegions_.at(i).isWhite())
-                sendData_.regions[i] = tracer_->currentRegions_.at(i);
-        }
-
-        sendData_.biggestRegion = Region(left_, right_, COLOR_WHITE);
-        sendData_.bits = 0x00;
-        sendData_.bits |= tracer_->computedRegion_ << 0;  //computed region
-        sendData_.bits |= (!(tracer_->unchangedRight_ && tracer_->unchangedLeft_)) << 1; //v zatacce
+        setSendData();
 
         setRide();
         //enet->send(&sendData_, sizeof(SendData));
@@ -210,6 +205,51 @@ namespace nxpbc {
             }
         }
         btns_ = buttons;
+    }
+
+    void NxpCar::setSendData() {
+
+        for (uint8_t i = 0; i < anLast; i++) {
+            sendData_.adc[i] = tfc_->ReadADC(i);
+        }
+
+        for (uint8_t i = 0; i < SEND_REGIONS_NUM; i++) {
+            sendData_.regions[i] = Region();
+        }
+
+/*
+    	sendData_.blackRegionsCount = 0;
+        sendData_.whiteRegionsCount = MIN(SEND_REGIONS_NUM,
+                                     tracer_->currentRegions_.size());
+        for (uint8_t i = 0; i < sendData_.whiteRegionsCount; i++) {
+            if (tracer_->currentRegions_.at(i).isWhite())
+                sendData_.regions[i] = tracer_->currentRegions_.at(i);
+            else{
+            	sendData_.blackRegionsCount++;
+            }
+        }*/
+
+        sendData_.blackRegionsCount = tracer_->blackRegionsCount_;
+        sendData_.whiteRegionsCount = MIN(SEND_REGIONS_NUM,
+                                          tracer_->whiteRegionsCount_);
+        for (uint8_t i = 0; i < sendData_.whiteRegionsCount; i++) {
+            if (tracer_->currentRegions_.at(i).isWhite())
+                sendData_.regions[i] = tracer_->currentRegions_.at(i);
+        }
+
+        sendData_.biggestRegion = Region(left_, right_, COLOR_WHITE);
+        sendData_.bits = 0x00;
+        sendData_.bits |= tracer_->computedRegion_ << 0;  //computed region
+        sendData_.bits |= (!(tracer_->unchangedRight_ && tracer_->unchangedLeft_)) << 1; //v zatacce
+
+        sendData_.regionAverage[0] = tracer_->currentAverage_.first;
+        sendData_.regionAverage[1] = tracer_->currentAverage_.second;
+
+        sendData_.regionMedian[0] = tracer_->currentMedian_.first;
+        sendData_.regionMedian[1] = tracer_->currentMedian_.second;
+
+        //sendData_.imageDiversity = 0;
+
     }
 };
 #endif

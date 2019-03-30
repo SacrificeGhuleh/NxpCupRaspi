@@ -45,3 +45,4 @@ cmake-build-debug-pi-kabel/
 cmake-build-debug-wsl/
 recordings/
 .idea/
+libraries/

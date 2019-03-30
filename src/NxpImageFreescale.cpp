@@ -27,7 +27,7 @@ namespace nxpbc {
 #endif
 
         //uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
-        //slowMedianBlur(rawImage, blurImage, 3);
+        //fastMedianBlur(rawImage, blurImage, 3);
         //std::memcpy(rawImage, blurImage, sizeof(rawImage));
 
 #if PRINT_BLUR

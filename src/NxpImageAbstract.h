@@ -36,6 +36,17 @@ namespace nxpbc {
         uint16_t min_;
         uint16_t max_;
         uint16_t threshValue_;
+    public:
+        uint16_t getMin_() const;
+
+        uint16_t getMax_() const;
+
+        uint16_t getThreshValue_() const;
+
+        uint8_t getDiversity_() const;
+
+    protected:
+        uint8_t diversity_;
 
 
         virtual void process() = 0;
@@ -71,8 +82,6 @@ namespace nxpbc {
                 uint16_t (&srcImg)[CAMERA_LINE_LENGTH],
                 int pixels);
 
-        template<class T>
-        T median(std::vector<T> v);
 
     };
 }

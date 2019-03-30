@@ -8,6 +8,7 @@
 #include "NxpDefines.h"
 #include "ImageType.h"
 #include "Logger.h"
+#include "NxpMath.h"
 
 namespace nxpbc {
 
@@ -50,10 +51,13 @@ namespace nxpbc {
             if (max_ == COLOR_WHITE_ORIGINAL/*COLOR_WHITE*/ && min_ == COLOR_BLACK) {
                 break;
             }
+
+
         }
 
         NXP_INFOP("Nalezeno:\tMIN:%04d, \tMAX:%04d"
                           NL, min_, max_);
+        diversity_ = MAX(max_ , min_)- MIN(min_, max_);
     }
 
     void NxpImageAbstract::cut(
@@ -72,27 +76,19 @@ namespace nxpbc {
             const uint16_t (&srcImg)[CAMERA_LINE_LENGTH],
             uint16_t (&dstImg)[CAMERA_LINE_LENGTH]) {
         for (int i = 0; i < CAMERA_LINE_LENGTH; i++) {
-            //uint64_t pixel = srcImg[i];
             float pixel = static_cast<float>(srcImg[i]);
             pixel -= min_;
             pixel *= COLOR_WHITE;
             pixel /= (max_ - min_);
             dstImg[i] = static_cast<uint16_t >(pixel);
-
         }
     }
 
-    uint16_t NxpImageAbstract::getAverageThreshold(
-            const uint16_t (&srcImg)[CAMERA_LINE_LENGTH]) {
+    uint16_t NxpImageAbstract::getAverageThreshold(const uint16_t (&srcImg)[CAMERA_LINE_LENGTH]) {
         long sum = 0;
-        //uint16_t pixel = 0;
         for (int i = BLACK_COUNT; i < CAMERA_LINE_LENGTH - BLACK_COUNT; i++) {
             sum += srcImg[i];
         }
-
-        /*for (uint16_t pixel : srcImg) {
-            sum += pixel;
-        }*/
         auto avg = static_cast<uint16_t>(sum / CAMERA_LINE_LENGTH - (2 * BLACK_COUNT));
         return avg;
     }
@@ -106,16 +102,6 @@ namespace nxpbc {
                 dstImg[i] = COLOR_WHITE;
         }
     }
-
-/*
-    void NxpImageAbstract::process() {
-        computeMinMax(rawImage_);
-        cut(rawImage_);
-        normalize(rawImage_, normalizedImage_);
-        threshValue_ = getAverageThreshold(normalizedImage_);
-        threshold(normalizedImage_, thresholdedImage_);
-    }
-*/
 
     void NxpImageAbstract::fastMedianBlur(
             uint16_t (&srcImg)[CAMERA_LINE_LENGTH],
@@ -163,10 +149,8 @@ namespace nxpbc {
             const uint16_t (&srcImg)[CAMERA_LINE_LENGTH],
             uint16_t (&dstImg)[CAMERA_LINE_LENGTH],
             const int pixels) {
-
         std::memcpy(dstImg, srcImg, CAMERA_LINE_LENGTH);
-        //int buffSize = pixels * 2 + 1;
-        std::vector<uint16_t> blurBuffer/*(buffSize)*/;
+        std::vector<uint16_t> blurBuffer;
 
         for (int i = pixels; i < CAMERA_LINE_LENGTH - pixels; i++) {
             for (int j = -pixels; j <= pixels; j++) {
@@ -185,18 +169,6 @@ namespace nxpbc {
         printf(NL);
     }
 
-    template<class T>
-    T NxpImageAbstract::median(std::vector<T> v) {
-        size_t n = v.size() / 2;
-        std::nth_element(v.begin(), v.begin() + n, v.end());
-        int vn = v[n];
-        if (v.size() % 2 == 1) {
-            return vn;
-        } else {
-            std::nth_element(v.begin(), v.begin() + n - 1, v.end());
-            return 0.5 * (vn + v[n - 1]);
-        }
-    }
 
     void NxpImageAbstract::slowMedianBlur(
             uint16_t (&srcImg)[CAMERA_LINE_LENGTH],
@@ -215,7 +187,7 @@ namespace nxpbc {
             //blurBuffer = std::vector<uint16_t>(pixBuffer.begin(), pixBuffer.end());
 
             for (int j = -pixels; j <= pixels; j++) {
-                srcImg[i + j] = median(std::vector<uint16_t>(pixBuffer.begin(), pixBuffer.end()));
+                srcImg[i + j] = median<uint16_t>(std::vector<uint16_t>(pixBuffer.begin(), pixBuffer.end()));
             }
             //blurBuffer.clear();
             pixBuffer.pop_front();
@@ -224,6 +196,22 @@ namespace nxpbc {
 
     uint8_t NxpImageAbstract::atThresh(uint8_t index) const {
         return thresholdedImage_[index];
+    }
+
+    uint16_t NxpImageAbstract::getMin_() const {
+        return min_;
+    }
+
+    uint16_t NxpImageAbstract::getMax_() const {
+        return max_;
+    }
+
+    uint16_t NxpImageAbstract::getThreshValue_() const {
+        return threshValue_;
+    }
+
+    uint8_t NxpImageAbstract::getDiversity_() const {
+        return diversity_;
     }
 /*
     uint16_t NxpImageAbstract::at(const uint16_t index, ImgType type) const {

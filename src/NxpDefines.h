@@ -243,11 +243,11 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
     /**
      * @brief TODO
      */
-#define CONST_ERROR 10.
+#define CONST_ERROR 440.
     /**
      * @brief TODO
      */
-#define CONST_DERIVATIVE 0.
+#define CONST_DERIVATIVE 25.
     /**
      * @brief TODO
      */
@@ -256,8 +256,9 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
     /**
      * @brief Poloměr oblasti, ve které se hledá čára podle předchozích hodnot
      */
-#define PREV_LINE_SEARCH_REGION 10
+#define PREV_LINE_SEARCH_REGION 5
 
+#define TRACER_HISTORY_SIZE 5
 
 
 #endif

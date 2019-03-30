@@ -15,7 +15,8 @@
 
 namespace nxpbc {
     class NxpCar : public NxpCarAbstract {
-    public:
+    private:
+        void setSendData();
     protected:
         virtual void handleBtns(unsigned char buttons) override;
 

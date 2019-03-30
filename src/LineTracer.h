@@ -27,14 +27,13 @@ namespace nxpbc {
          * @brief Konstruktor třídy
          * @param listSize Počet uchovaných dat v historii
          */
-        LineTracer(const int listSize);
+        LineTracer(int listSize);
 
         /**
          * @brief Přidání obrazu do fronty
          * @param image Obrazová data z kamery
          */
         void addImage(NxpImage image, bool forceSearchRegions = false);
-
 
         /**
          * @brief Metoda pro získání vzdálenosti levé čáry
@@ -78,18 +77,32 @@ namespace nxpbc {
         bool unchangedLeft_;
         bool unchangedRight_;
 
+        uint8_t blackRegionsCount_;
+        uint8_t whiteRegionsCount_;
+
+        std::pair<uint8_t, uint8_t> getDistancesPair();
+
+        /**
+         * @brief prvni prvek je levy, druhy je pravy
+         */
+        std::pair<uint8_t, uint8_t> currentAverage_;
+
+        /**
+         * @brief prvni prvek je levy, druhy je pravy
+         */
+        std::pair<uint8_t, uint8_t> currentMedian_;
+
+
         void reset();
+
+        size_t getListSize();
+
+
 
         /**
          * @brief Fronta pro uložení čar.
          */
-
-#if defined(__linux__) || defined(WIN32)
-        std::list<std::pair<NxpImage, Region>> imageRegionList_;
-#endif
-#if defined(__MCUXPRESSO)
         std::list<Region> imageRegionList_;
-#endif
 
     };
 }

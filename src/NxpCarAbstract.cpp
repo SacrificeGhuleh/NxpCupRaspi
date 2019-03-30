@@ -16,22 +16,31 @@
 namespace nxpbc {
 
     NxpCarAbstract::NxpCarAbstract() :
-            motorsState_{nxpbc::MotorsState::Stay}, running_{true}, motorSpeed_{
-            0},
-            //leftSpeed_{0},
-            //rightSpeed_{0},
-            servoChannel_{0}, servoPos_{0}, debounce_{false}, debounceCounterMax_{
-            10}, debounceCounter_{0}, btns_{0b00}, timestamp_{0}, timestampDiff_{
-            0}, left_{Region::minLeft}, right_{Region::maxRight},
+            motorsState_{nxpbc::MotorsState::Stay},
+			running_{true},
+			motorSpeed_{0},
+            servoChannel_{0},
+			servoPos_{0},
+			debounce_{false},
+			debounceCounterMax_{10},
+			debounceCounter_{0},
+			btns_{0b00},
+			timestamp_{0},
+			timestampDiff_{0},
+			left_{Region::minLeft},
+			right_{Region::maxRight},
             //image_{0},
-            steerSetting_{0.f}, tracer_{new LineTracer(5)}, pid_{new PID(
-            CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, 1000.f)}, steerRegulatorInput_{
-            0.}, steerRegulatorOutput_{0.}, steerRegulatorTarget_{0.}, steerRegulator_{
-            new PID_new(&steerRegulatorInput_, &steerRegulatorOutput_,
-                        &steerRegulatorTarget_, CONST_ERROR,
-                        CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT)}, tfc_{
-            new TFC()}, inSpeedCheckZone_{false}, speedCheckZoneDebounce_{
-            0}, prevZonesFoundCount_{0} {
+            steerSetting_{0.f},
+			tracer_{new LineTracer(TRACER_HISTORY_SIZE)},
+			pid_{new PID(CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, 1000.f)},
+			steerRegulatorInput_{0.},
+			steerRegulatorOutput_{0.},
+			steerRegulatorTarget_{0.},
+			steerRegulator_{new PID_new(&steerRegulatorInput_, &steerRegulatorOutput_,&steerRegulatorTarget_, CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, P_ON_E, DIRECT)},
+			tfc_{new TFC()},
+			inSpeedCheckZone_{false},
+			speedCheckZoneDebounce_{0},
+			prevZonesFoundCount_{0} {
 
         steerRegulator_->SetOutputLimits(-1000., 1000.);
         steerRegulator_->SetSampleTime(10);
@@ -41,10 +50,6 @@ namespace nxpbc {
                                   static_cast<uint32_t>(SERVO_LR));
         tfc_->setServoCalibration(0b01, static_cast<uint32_t>(SERVO_CENTER),
                                   static_cast<uint32_t>(SERVO_LR));
-
-        const std::string time = std::to_string(std::time(nullptr));
-        NXP_TRACEP("Time: %s"
-                           NL, time.c_str());
     }
 
     bool NxpCarAbstract::isRunning() {
@@ -60,8 +65,9 @@ namespace nxpbc {
                 break;
             case nxpbc::MotorsState::Ride: state = FGRN("nxpbc::MotorsState::Ride");
                 break;
-        }NXP_TRACEP("State: %s"
-                            NL, state.c_str());
+        }
+        NXP_TRACEP("State: %s"
+                           NL, state.c_str());
     }
 
     void NxpCarAbstract::setRide() {

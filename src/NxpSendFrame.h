@@ -25,7 +25,10 @@ namespace nxpbc {
         int16_t motorSpeed = 0;
         int16_t servo = 0;
 
-        uint8_t regionsCount = 0;
+        float error = 0.0f;
+
+        uint8_t whiteRegionsCount = 0;
+        uint8_t blackRegionsCount = 0;
         Region regions[SEND_REGIONS_NUM] = {Region()};
         Region biggestRegion = Region();
         uint8_t bits = 0x00;
@@ -33,6 +36,11 @@ namespace nxpbc {
          * 0b0000 0001 computed region
          * 0b0000 0010 turning
          * */
+        uint8_t regionAverage[2] = {0};
+        uint8_t regionMedian[2] = {0};
+        int16_t imageDiversity = 0;
+
+
 
         //bool computedRegion = false;
 
