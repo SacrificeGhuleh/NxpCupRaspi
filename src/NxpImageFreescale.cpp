@@ -9,12 +9,15 @@
 #include "NxpImageFreescale.h"
 #include "ImageType.h"
 #include "Logger.h"
+#include "NxpDefines.h"
 
 #define PRINT_ORIGINAL    0
 #define PRINT_BLUR        0
 #define PRINT_CUT        0
 #define PRINT_NORM        0
 #define PRINT_THRESH    0
+
+
 
 namespace nxpbc {
 
@@ -26,9 +29,9 @@ namespace nxpbc {
         NxpImageAbstract::printImg(rawImage);
 #endif
 
-        //uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
-        //fastMedianBlur(rawImage, blurImage, 3);
-        //std::memcpy(rawImage, blurImage, sizeof(rawImage));
+        uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
+        fastMedianBlur(rawImage, blurImage, 1);
+        std::memcpy(rawImage, blurImage, sizeof(rawImage));
 
 #if PRINT_BLUR
         NXP_TRACE("Blur img" NL);
@@ -36,27 +39,35 @@ namespace nxpbc {
 #endif
 
         computeMinMax(rawImage);
-        cut(rawImage);
+        if (diversity_ < LOW_DIVERSITY) {
+            for (int i = 0; i < CAMERA_LINE_LENGTH; i++) {
+                thresholdedImage_[i] = COLOR_WHITE;
+                rawImage[i] = COLOR_WHITE_ORIGINAL;
+            }
+        } else {
+            cut(rawImage);
 
 #if PRINT_CUT
-        NXP_TRACE("Cut img" NL);
+            NXP_TRACE("Cut img" NL);
         NxpImageAbstract::printImg(rawImage);
 #endif
 
-        normalize(rawImage, thresholdedImage_);
+            normalize(rawImage, thresholdedImage_);
 
 #if PRINT_NORM
-        NXP_TRACE("Normalized img" NL);
+            NXP_TRACE("Normalized img" NL);
         NxpImageAbstract::printImg(thresholdedImage_);
 #endif
 
-        threshValue_ = getAverageThreshold(thresholdedImage_);
-        threshold(thresholdedImage_, thresholdedImage_);
+            threshValue_ = getAverageThreshold(thresholdedImage_);
+            threshold(thresholdedImage_, thresholdedImage_);
 
 #if PRINT_THRESH
-        NXP_TRACE("Thresh img" NL);
+            NXP_TRACE("Thresh img" NL);
         NxpImageAbstract::printImg(thresholdedImage_);
 #endif
+        }
+
     }
 
     uint16_t NxpImage::at(uint8_t index, ImgType type) const {
@@ -66,17 +77,14 @@ namespace nxpbc {
             return 0;
         }
         switch (type) {
-            case ImgType::Thresholded:
-                return thresholdedImage_[index];
-            default:
-                return 0;
+            case ImgType::Thresholded:return thresholdedImage_[index];
+            default:return 0;
         }
     }
 
     void NxpImage::printImg(ImgType type) {
         switch (type) {
-            case ImgType::Thresholded:
-                NxpImageAbstract::printImg(thresholdedImage_);
+            case ImgType::Thresholded:NxpImageAbstract::printImg(thresholdedImage_);
                 break;
         }
     }

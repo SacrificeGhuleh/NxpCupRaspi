@@ -80,7 +80,7 @@ set(NXP_CODE
     src/PID_New.h
     src/LinuxUDPServer.h
     src/LinuxUDPServer.cpp
-    src/FreescaleUdpServer.cpp src/FreescaleUdpServer.h src/NxpCarRaspi.cpp src/NxpCarRaspi.h src/NxpCarFreescale.cpp src/NxpCarFreescale.h src/NxpImageFreescale.cpp src/NxpImageFreescale.h src/NxpImageRaspi.cpp src/NxpImageRaspi.h src/NxpImage.h src/NxpCar.h src/NxpSendFrame.h src/NxpMath.h)
+    src/FreescaleUdpServer.cpp src/FreescaleUdpServer.h src/NxpCarRaspi.cpp src/NxpCarRaspi.h src/NxpCarFreescale.cpp src/NxpCarFreescale.h src/NxpImageFreescale.cpp src/NxpImageFreescale.h src/NxpImageRaspi.cpp src/NxpImageRaspi.h src/NxpImage.h src/NxpCar.h src/NxpSendFrame.h src/NxpMath.h src/Vec3.h src/ImuData.h src/NxpModeSetting.h)
 
 
 set(INCLUDES

@@ -24,7 +24,7 @@ namespace nxpbc {
         int16_t rightPwm = 0;
         int16_t motorSpeed = 0;
         int16_t servo = 0;
-
+        
         float error = 0.0f;
 
         uint8_t whiteRegionsCount = 0;
@@ -39,6 +39,13 @@ namespace nxpbc {
         uint8_t regionAverage[2] = {0};
         uint8_t regionMedian[2] = {0};
         int16_t imageDiversity = 0;
+
+        float accelValues[3];
+        float gyroValues[3];
+        float magnetoValues[3];
+        float angle;
+
+        uint8_t currentState = 0;
 
 
 

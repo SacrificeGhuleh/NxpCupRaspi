@@ -43,10 +43,11 @@ namespace nxpbc {
 
         uint16_t getThreshValue_() const;
 
-        uint8_t getDiversity_() const;
+        int16_t getDiversity_() const;
 
+        bool isLowDiversity() const;
     protected:
-        uint8_t diversity_;
+        int16_t diversity_;
 
 
         virtual void process() = 0;

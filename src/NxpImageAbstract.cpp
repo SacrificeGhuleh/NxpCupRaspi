@@ -57,7 +57,7 @@ namespace nxpbc {
 
         NXP_INFOP("Nalezeno:\tMIN:%04d, \tMAX:%04d"
                           NL, min_, max_);
-        diversity_ = MAX(max_ , min_)- MIN(min_, max_);
+        diversity_ = MAX(max_, min_) - MIN(min_, max_);
     }
 
     void NxpImageAbstract::cut(
@@ -133,7 +133,7 @@ namespace nxpbc {
         const int buffSize = pixels * 2 + 1;
         std::vector<uint16_t> blurBuffer;
 
-        for (int i = pixels; i < CAMERA_LINE_LENGTH - pixels; i += buffSize) {
+        for (int i = ((CAMERA_LINE_LENGTH / 2) % pixels) + pixels; i < CAMERA_LINE_LENGTH - pixels; i += buffSize) {
             for (int j = -pixels; j <= pixels; j++) {
                 blurBuffer.emplace_back(srcImg[i + j]);
             }
@@ -177,7 +177,7 @@ namespace nxpbc {
         //std::vector<uint16_t> blurBuffer;
         std::deque<uint16_t> pixBuffer;
 
-        for (int i = 0; i < CAMERA_LINE_LENGTH; i++) {
+        for (int i = /*0*/1; i < CAMERA_LINE_LENGTH; i++) {
             //for (int i = pixels; i < CAMERA_LINE_LENGTH - pixels; i += buffSize) {
             if (pixBuffer.size() < pixels) {
                 pixBuffer.emplace_back(srcImg[i]);
@@ -210,8 +210,12 @@ namespace nxpbc {
         return threshValue_;
     }
 
-    uint8_t NxpImageAbstract::getDiversity_() const {
+    int16_t NxpImageAbstract::getDiversity_() const {
         return diversity_;
+    }
+
+    bool NxpImageAbstract::isLowDiversity() const {
+        return diversity_ < LOW_DIVERSITY;
     }
 /*
     uint16_t NxpImageAbstract::at(const uint16_t index, ImgType type) const {

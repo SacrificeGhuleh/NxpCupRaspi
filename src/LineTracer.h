@@ -33,7 +33,7 @@ namespace nxpbc {
          * @brief Přidání obrazu do fronty
          * @param image Obrazová data z kamery
          */
-        void addImage(NxpImage image, bool forceSearchRegions = false);
+        void addImage(const NxpImage& image, bool forceSearchRegions = false);
 
         /**
          * @brief Metoda pro získání vzdálenosti levé čáry
@@ -47,6 +47,9 @@ namespace nxpbc {
          * @return Vzdálenost pravé čáry
          */
         unsigned int getRight();
+
+        bool hasLeft();
+        bool hasRight();
 
         //private:
 
@@ -76,6 +79,9 @@ namespace nxpbc {
         bool computedRegion_;
         bool unchangedLeft_;
         bool unchangedRight_;
+
+        bool hasLeft_;
+        bool hasRight_;
 
         uint8_t blackRegionsCount_;
         uint8_t whiteRegionsCount_;

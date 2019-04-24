@@ -7,6 +7,7 @@
 
 #include "NxpDefines.h"
 #include "NxpSendFrame.h"
+#include "NxpModeSetting.h"
 
 class TFC;
 
@@ -47,20 +48,33 @@ namespace nxpbc {
 
         virtual ~NxpCarAbstract();
 
+        bool shouldReset();
 
         TFC *getTfc();
 
         SendData sendData_;
     protected:
+
+        /**
+         * @brief bity pro indikaci zmeny serva
+         * 0b0000 0001  INCREASING - servo zvysuje natoceni
+         * 0b0000 0010  DECREASING - servo snizuje natoceni
+         * 0b0000 0000  STAYING - servo zachovava pozici
+         */
+
+        uint8_t servoIncreasingBits_;
+
         uint8_t prevZonesFoundCount_;
         bool inSpeedCheckZone_;
         uint8_t speedCheckZoneDebounce_;
         MotorsState motorsState_;
         bool running_;
+        bool shouldReset_;
         uint16_t motorSpeed_;
         //int leftSpeed_;
         //int rightSpeed_;
         const bool servoChannel_;
+        int16_t prevServoPos_;
         int16_t servoPos_;
         bool debounce_;
         uint8_t debounceCounter_;
@@ -70,6 +84,7 @@ namespace nxpbc {
         uint16_t timestampDiff_;
         uint8_t left_;
         uint8_t right_;
+        int startTimer_;
         //uint16_t image_[CAMERA_LINE_LENGTH];
         float steerSetting_;
 
@@ -80,7 +95,7 @@ namespace nxpbc {
         double steerRegulatorInput_;
         double steerRegulatorOutput_;
         double steerRegulatorTarget_;
-
+        NxpModeSetting modeSetting_;
         /**
          * @brief Metoda pro výpis aktuálního stavu autíčka do konzole.
          */
@@ -116,6 +131,11 @@ namespace nxpbc {
          */
         virtual void start();
 
+        virtual float servoToAngle();
+
+
+        virtual void resetRegulator();
+        virtual void handleReset();
 
     };
 }

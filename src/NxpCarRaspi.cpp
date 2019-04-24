@@ -16,6 +16,7 @@
 #include "NxpCommunication.h"
 #include "Region.h"
 #include "NxpImage.h"
+#include "NxpModes.h"
 
 namespace nxpbc {
 
@@ -30,7 +31,7 @@ namespace nxpbc {
 
         if (!communication_->isComOpen()) {
             NXP_ERRORP("Nelze otevrit seriovy port: %s"
-                               NL, strerror(errno));
+            NL, strerror(errno));
             running_ = false;
             return;
         }
@@ -51,9 +52,11 @@ namespace nxpbc {
                                      std::ofstream::trunc | std::ofstream::out);
 
         (*csvFile_)
-                << "state,voltage,timestampDiff,levaVzdalenost,pravaVzdalenost,levyPomer,pravyPomer,rozdilPomeru,servo" NL;
+                << "state,voltage,timestampDiff,levaVzdalenost,pravaVzdalenost,levyPomer,pravyPomer,rozdilPomeru,servo"
+        NL;
 #if NXP_RASPI_UDP
-        printf("Cekam na UDP spojeni..." NL);
+        printf("Cekam na UDP spojeni..."
+        NL);
         communication_->receiveUdpData();
 #endif
 
@@ -93,19 +96,19 @@ namespace nxpbc {
     void NxpCar::printTimestampDiff(unsigned long diff) {
         if (timestampDiff_ >= 5) {
             NXP_ERRORP("Timestamp diff: %lu"
-                               NL, timestampDiff_);
+            NL, timestampDiff_);
         } else if (timestampDiff_ >= 2) {
             NXP_WARNP("Timestamp diff: %lu"
-                              NL, timestampDiff_);
+            NL, timestampDiff_);
         } else {
             NXP_INFOP("Timestamp diff: %lu"
-                              NL, timestampDiff_);
+            NL, timestampDiff_);
         }
     }
 
     void NxpCar::update() {
         printf(BOLD(FCYN("------------------"
-                            NL)));
+        NL)));
         printCurrentState();
         control_ = tfc_->getControl();
         communication_->setControl(control_);
@@ -119,7 +122,7 @@ namespace nxpbc {
         tfc_->setData(data_);
         float voltage = tfc_->ReadBatteryVoltage_f();
         NXP_TRACEP("Voltage: %f"
-                           NL, voltage);
+        NL, voltage);
 
         timestampDiff_ = data_->timestamp - timestamp_;
         timestamp_ = data_->timestamp;
@@ -137,7 +140,10 @@ namespace nxpbc {
 
         tfc_->getImage(0b00, image_, CAMERA_LINE_LENGTH);
 
-        if (tfc_->getDIPSwitch() & 0b00000010) {
+
+
+
+        if (tfc_->getDIPSwitch() == modeSpeedZone) {
             tracer_->addImage(NxpImage(image_), true);
             tfc_->setLED(1, 1);
         } else {
@@ -160,7 +166,7 @@ namespace nxpbc {
         if (motorsState_ != nxpbc::MotorsState::Stay) {
             pid_->debugAdcValue = (tfc_->ReadPot_f(1) + 1.f) / 2.f;
             NXP_TRACEP("pConst: %f"
-                               NL, pid_->pConst_ * pid_->debugAdcValue);
+            NL, pid_->pConst_ * pid_->debugAdcValue);
             steerSetting_ = pid_->getPid(0.f, ratioDiff);
         } else {
             steerSetting_ = 0.f;
@@ -189,7 +195,7 @@ namespace nxpbc {
 
 
         NXP_TRACEP("Servo pos: %d"
-                           NL, control_->servo_pos[0]);
+        NL, control_->servo_pos[0]);
         if (SAVE_CSV)
             if (motorsState_ != nxpbc::MotorsState::Stay)
                 writeToCsvFile(*csvFile_, motorsState_, voltage, timestampDiff_, leftDistance, rightDistance, leftRatio,
@@ -198,10 +204,10 @@ namespace nxpbc {
 #if NXP_RASPI_UDP
         if (communication_->sendUdpData()) {
             NXP_WARN("UDP serial data neodeslany"
-                             NL);
+            NL);
         } else {
             NXP_INFO("UDP serial data OK"
-                             NL);
+            NL);
         }
 #endif
     }

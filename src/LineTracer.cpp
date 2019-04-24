@@ -13,20 +13,22 @@
 namespace nxpbc {
 
 
-#define TOLERANCE 1
+#define TOLERANCE 3
 
 #define REGION_STANDARD_SIZE 85
-#define REGION_SIZE_COEFICIENT 0.5
+#define REGION_SIZE_COEFICIENT 0.3
 #define REGION_COMPUTED_SIZE (REGION_STANDARD_SIZE*REGION_SIZE_COEFICIENT)
 #define REGION_DISTANCE 30
 
     LineTracer::LineTracer(const int listSize) :
-    		listSize_{listSize},
-			blackRegionsCount_{0},
-    		whiteRegionsCount_{0} {
+            listSize_{listSize},
+            blackRegionsCount_{0},
+            whiteRegionsCount_{0},
+            hasLeft_{false},
+            hasRight_{false} {
     }
 
-    void LineTracer::addImage(const NxpImage image, bool forceSearchRegions) {
+    void LineTracer::addImage(const NxpImage &image, bool forceSearchRegions) {
         bool hasPrevLine = true;
         if (imageRegionList_.size() > listSize_) {
             imageRegionList_.pop_front();
@@ -35,24 +37,27 @@ namespace nxpbc {
         if (imageRegionList_.empty())
             hasPrevLine = false;
 
-        //Region biggestWhiteRegion = getDistances(image, hasPrevLine);
-
-#if 0//defined(__linux__) || defined(WIN32)
-        imageRegionList_.emplace_back(image, getDistances(image, hasPrevLine, forceSearchRegions));
-#endif
-
-#if 1//defined(__MCUXPRESSO)
         imageRegionList_.emplace_back(getDistances(image, hasPrevLine, forceSearchRegions));
-#endif
     }
 
     Region LineTracer::getDistances(const NxpImage &image, bool hasPrevDistance, bool forceSearchRegions) {
-
-        //std::vector<nxpbc::Region> currentRegions_;
         currentRegions_.clear();
         Region biggestWhiteRegion;
-		computedRegion_ = false;
+        computedRegion_ = false;
         uint8_t right, left;
+
+        if (image.isLowDiversity()) {
+            whiteRegionsCount_ = 1;
+            blackRegionsCount_ = 0;
+
+            biggestWhiteRegion.color = COLOR_WHITE;
+            biggestWhiteRegion.left = 0;
+            biggestWhiteRegion.right = CAMERA_LINE_LENGTH;
+
+            currentRegions_.emplace_back(biggestWhiteRegion);
+            return biggestWhiteRegion;
+        }
+
         bool regionByPreviousIndexFound = false;
         if (hasPrevDistance) {
             //Region previousRegion;
@@ -119,9 +124,9 @@ namespace nxpbc {
         bool hasRightLine = false;
         for (Region &r : currentRegions_) {
             if (r.isBlack()) {
-                if (r.getCenter() < biggestWhiteRegion.getCenter()) {
+                if (r.getCenter() < biggestWhiteRegion.left) {
                     hasLeftLine = true;
-                } else if (r.getCenter() > biggestWhiteRegion.getCenter()) {
+                } else if (r.getCenter() > biggestWhiteRegion.right) {
                     hasRightLine = true;
                 }
             }
@@ -130,12 +135,15 @@ namespace nxpbc {
 
         if (!(hasLeftLine && hasRightLine)) {
             computedRegion_ = true;
+
             if (biggestWhiteRegion.getCenter() > CAMERA_LINE_LENGTH / 2) {
-                biggestWhiteRegion.left = biggestWhiteRegion.left;
-                biggestWhiteRegion.right = biggestWhiteRegion.left + REGION_DISTANCE + REGION_COMPUTED_SIZE;
-            } else {
                 biggestWhiteRegion.left = biggestWhiteRegion.right - REGION_DISTANCE - REGION_COMPUTED_SIZE;
                 biggestWhiteRegion.right = biggestWhiteRegion.right;
+            } else {
+                biggestWhiteRegion.left = biggestWhiteRegion.left;
+                biggestWhiteRegion.right = biggestWhiteRegion.left + REGION_DISTANCE + REGION_COMPUTED_SIZE;
+
+
             }
         }
 
@@ -162,6 +170,8 @@ namespace nxpbc {
                        region.left,
                        region.right);
         }
+        hasLeft_ = hasLeftLine;
+        hasRight_ = hasRightLine;
         return {left, right, COLOR_WHITE};
     }
 
@@ -173,15 +183,8 @@ namespace nxpbc {
 
         unsigned int sum = 0;
         for (auto idx : imageRegionList_) {
-#if 0//defined(__linux__) || defined(WIN32)
-            rightLines.emplace_back(idx.second.right);
-            sum += idx.second.right;
-#endif
-#if 1//defined(__MCUXPRESSO)
-
             rightLines.emplace_back(idx.right);
             sum += idx.right;
-#endif
         }
 
         /*
@@ -208,15 +211,8 @@ namespace nxpbc {
 
         unsigned int sum = 0;
         for (auto idx : imageRegionList_) {
-#if 0//defined(__linux__) || defined(WIN32)
-            leftLines.emplace_back(idx.second.left);
-            sum += idx.second.left;
-#endif
-#if 1//defined(__MCUXPRESSO)
-
             leftLines.emplace_back(idx.left);
             sum += idx.left;
-#endif
         }
 
         /*
@@ -268,12 +264,7 @@ namespace nxpbc {
          *
          */
 
-#if 0//defined(__linux__) || defined(WIN32)
-        Region previousRegion = imageRegionList_.back().second;
-#endif
-#if 1//defined(__MCUXPRESSO)
         Region previousRegion = imageRegionList_.back();
-#endif
 
         uint8_t prevLeftIndex = previousRegion.left;
         uint8_t prevRightIndex = previousRegion.right;
@@ -372,7 +363,7 @@ namespace nxpbc {
     std::pair<uint8_t, uint8_t> LineTracer::getDistancesPair() {
         std::pair<uint8_t, uint8_t> currentDistances = {0, 0};
 
-        std::pair<uint, uint> sums = {0, 0};
+        std::pair<uint16_t, uint16_t> sums = {0, 0};
 
         /*
          * Kvuli medianu dve pole
@@ -406,12 +397,21 @@ namespace nxpbc {
         currentDistances.first = imageRegionList_.back().left;
         currentDistances.second = imageRegionList_.back().right;
 
-        return currentDistances;
+        return currentAverage_;
+        //return currentDistances;
     }
 
     size_t LineTracer::getListSize() {
         return imageRegionList_.size();
     }
 
+
+    bool LineTracer::hasLeft() {
+        return hasLeft_;
+    }
+
+    bool LineTracer::hasRight() {
+        return hasRight_;
+    }
 
 }

@@ -44,7 +44,17 @@ namespace nxpbc {
 #define ETX							0x3
 
 #ifndef andata_chnl_enum 
-enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
+enum andata_chnl_enum {
+    anPOT_1,	///< Potentiometer 1.
+    anPOT_2,	///< Potentiometer 2.
+    anFB_A,		///< Feedback A from the H-Bridge.
+    anFB_B,		///< Feedback B from the H-Bridge.
+    anBAT,		///< Battery voltage.
+    anIR_1,		///< IR sensor 1
+    anIR_2,		///< IR sensor 2
+    anIR_3,		///< IR sensor 3
+    anLast		///< Last member used as a size of an array.
+};
 #endif
 
 #else
@@ -54,38 +64,38 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
 #endif
 
 #ifndef PWM_MINMAX
-#define PWM_MINMAX					TFC_PWM_MINMAX			// -/+ range for PWM
+#define PWM_MINMAX                    TFC_PWM_MINMAX            // -/+ range for PWM
 #endif
 
 #ifndef SERVO_MINMAX
-#define SERVO_MINMAX				TFC_SERVO_MINMAX			// -/+ range for servo position
+#define SERVO_MINMAX                TFC_SERVO_MINMAX            // -/+ range for servo position
 #endif
 
 #ifndef ADC_MAXVAL
-#define ADC_MAXVAL					TFC_ADC_MAXVAL			// Maximum value of analog sample from ADC
+#define ADC_MAXVAL                    TFC_ADC_MAXVAL            // Maximum value of analog sample from ADC
 #endif
 
 #ifndef ANDATA_MINMAX
-#define ANDATA_MINMAX				TFC_ANDATA_MINMAX			// -/+ range for analog values (e.g. potentiometers)
+#define ANDATA_MINMAX                TFC_ANDATA_MINMAX            // -/+ range for analog values (e.g. potentiometers)
 #endif
 
 #ifndef SERVO_DEFAULT_CENTER
-#define SERVO_DEFAULT_CENTER		TFC_SERVO_DEFAULT_CENTER			// Center position of servo - pulse in microseconds
+#define SERVO_DEFAULT_CENTER        TFC_SERVO_DEFAULT_CENTER            // Center position of servo - pulse in microseconds
 #endif
 #ifndef SERVO_DEFAULT_MAX_LR
-#define SERVO_DEFAULT_MAX_LR		TFC_SERVO_DEFAULT_MAX_LR				// Default -/+ range of pulse width range
+#define SERVO_DEFAULT_MAX_LR        TFC_SERVO_DEFAULT_MAX_LR                // Default -/+ range of pulse width range
 #endif
 
 #ifndef SERVO_MAX_LR
-#define SERVO_MAX_LR				TFC_SERVO_MAX_LR				// Maximum -/+ allowed range of pulse width
+#define SERVO_MAX_LR                TFC_SERVO_MAX_LR                // Maximum -/+ allowed range of pulse width
 #endif
 
 #ifndef PWM_DEFAULT_MAX
-#define PWM_DEFAULT_MAX				TFC_PWM_DEFAULT_MAX				// Default value for maximal -/+ PWM duty cycle
+#define PWM_DEFAULT_MAX                TFC_PWM_DEFAULT_MAX                // Default value for maximal -/+ PWM duty cycle
 #endif
 
 #ifndef PWM_MAX
-#define PWM_MAX						HW_TFC_PWM_MAX				// Maximal allowed -/+ PWM duty cycle
+#define PWM_MAX                        HW_TFC_PWM_MAX                // Maximal allowed -/+ PWM duty cycle
 #endif
 
 #endif
@@ -208,17 +218,17 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
     /**
      * @brief Maximální hodnota PWM
      */
-#define CONTROL_PWM_MAX 1000
+#define CONTROL_PWM_MAX 300
 
     /**
      * @brief Hodnota PWM kroku při rozjezu
      */
-#define CONTROL_PWM_STEP 100
+#define CONTROL_PWM_STEP 20
 
     /**
      * @brief Maximální hodnota PWM pro jízdu
      */
-#define CONTROL_DRIVE_MAX 500
+#define CONTROL_DRIVE_MAX 400
 
     /**
      * @brief Nastavení středu serva
@@ -243,27 +253,56 @@ enum andata_chnl_enum { anPOT_1, anPOT_2, anFB_A, anFB_B, anBAT, anLast };
     /**
      * @brief TODO
      */
-#define CONST_ERROR 440.
+#define CONST_ERROR 160.6f
     /**
      * @brief TODO
      */
-#define CONST_DERIVATIVE 25.
+#define CONST_DERIVATIVE 8.3f
     /**
      * @brief TODO
      */
-#define CONST_INTEGRAL 0.
+#define CONST_INTEGRAL 0.5f
 
     /**
      * @brief Poloměr oblasti, ve které se hledá čára podle předchozích hodnot
      */
 #define PREV_LINE_SEARCH_REGION 5
-
 #define TRACER_HISTORY_SIZE 5
+
+#define SERVO_TO_DEG_CONST 5.85f
 
 
 #endif
 
+/**
+ * @brief Rozvor kol v decimetrech
+ * Vzdalenost prednich a zadnich kol
+ */
+#define ALAMAK_WHEELBASE 1.85f
+
+
+/**
+ * @brief Rozchod kol v decimetrech
+ * Vzdalenost leveho a praveho kola
+ */
+#define ALAMAK_TRACK 1.50f
+
+/**
+ * @brief Koeficient pro diferencial
+ */
+#define TURN_CONTROL_COEFICIENT 1.28f
+
+/**
+ * @brief Pi
+ */
+#define PI 3.14159265
+
+#define LINE_CROSS_TIMER 40
+#define WHITE_IR_BOUND 3000
+#define START_STEPS 200
 #define MAX_REGIONS_COUNT 25
+
+#define LOW_DIVERSITY 0
 
 /**
  * @brief Makro pro safe delete
