@@ -17,7 +17,8 @@ namespace nxpbc{
         modeObstacle    = 0b1000,
         modeRideOne     = 0b0000,
         modeRideTwo     = 0b0110,
-        modeRideThree   = 0b1010
+        modeRideThree   = 0b1010,
+        modeRideSetting = 0b1110
     };
 
 }

@@ -298,7 +298,7 @@ enum andata_chnl_enum {
 #define PI 3.14159265
 
 #define LINE_CROSS_TIMER 40
-#define WHITE_IR_BOUND 3000
+#define WHITE_IR_BOUND 2000
 #define START_STEPS 200
 #define MAX_REGIONS_COUNT 25
 

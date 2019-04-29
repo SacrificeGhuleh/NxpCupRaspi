@@ -177,7 +177,7 @@ namespace nxpbc {
             return;
         }
         --startTimer_;
-        if (motorSpeed_ < CONTROL_DRIVE_MAX)
+        if (motorSpeed_ < modeSetting_.maxSpeed/*CONTROL_DRIVE_MAX*/)
             motorSpeed_ += CONTROL_PWM_STEP;
     }
 

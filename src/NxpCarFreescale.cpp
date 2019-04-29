@@ -102,12 +102,22 @@ namespace nxpbc {
             }
             case modeFigEight: {
                 handleIrSensors();
+
+                /*handle*/
+                if (modeSetting_ != constFigure8Setting) {
+                    modeSetting_ = constFigure8Setting;
+                    handleReset();
+                }
+
                 tracer_->addImage(nxpImage, false);
                 tfc_->setLEDs(0b0000);
                 break;
             }
             case modeObstacle: {
                 handleIrSensors();
+
+                /* handle*/
+
                 tracer_->addImage(nxpImage, false);
                 tfc_->setLEDs(0b0000);
                 break;
@@ -141,6 +151,42 @@ namespace nxpbc {
 
                 if (modeSetting_ != constRide3Setting) {
                     modeSetting_ = constRide3Setting;
+                    handleReset();
+                }
+
+                tracer_->addImage(nxpImage, false);
+                tfc_->setLEDs(0b0000);
+                break;
+            }
+            case modeRideSetting: {
+                handleIrSensors();
+
+
+                int regulatorConstValue = ((tfc_->ReadPot_f(1)+1.f)*100.f)/2.f;
+                int speedSetting = tfc_->ReadPot_i(0);
+
+                /*Zaokrouhlit na desitky, BO potenciometr neni uplne presny
+                 * at se zamezi stalemu resetovani*/
+                regulatorConstValue /= 10;
+                regulatorConstValue *= 10;
+
+                speedSetting /= 10;
+                speedSetting *= 10;
+
+
+                /*
+                 * je treba dynamicky menit v kodu,
+                 * mame jen jeden potenciometr pro cely PID
+                 * tzn - nastav P, potom D, potom I
+                 * */
+                NxpModeSetting setting(
+                        regulatorConstValue,
+                        CONST_INTEGRAL,
+                        CONST_DERIVATIVE,
+                        TURN_CONTROL_COEFICIENT,
+                        speedSetting);
+                if (modeSetting_ != setting) {
+                    modeSetting_ = setting;
                     handleReset();
                 }
 
@@ -211,23 +257,22 @@ namespace nxpbc {
                 motorSpeed_ = 0;
                 steerRegulator_->SetMode(MANUAL);
                 servoPos_ = 0;
-                //tfc_->MotorPWMOnOff(0b00);
-                //tfc_->ServoOnOff(0b00);
                 break;
             }
             case MotorsState::Start: {
-                tfc_->setPWMMax(modeSetting_.maxSpeed);
-                start();
+                //tfc_->setPWMMax(modeSetting_.maxSpeed);
+            	tfc_->setPWMMax(CONTROL_PWM_MAX);
+            	start();
                 steerRegulator_->SetMode(AUTOMATIC);
-                //tfc_->MotorPWMOnOff(0b11);
-                //tfc_->ServoOnOff(0b11);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
-//                steer(steerSetting_);
+
                 break;
             }
             case MotorsState::Ride: {
-                tfc_->setPWMMax(modeSetting_.maxSpeed);
-                //tfc_->MotorPWMOnOff(0b11);
+                //tfc_->setPWMMax(modeSetting_.maxSpeed);
+            	tfc_->setPWMMax(CONTROL_PWM_MAX);
+				motorSpeed_ = modeSetting_.maxSpeed;
+            	//tfc_->MotorPWMOnOff(0b11);
                 //tfc_->ServoOnOff(0b11);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
 //                steer(steerSetting_);

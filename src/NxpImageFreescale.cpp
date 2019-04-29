@@ -11,12 +11,13 @@
 #include "Logger.h"
 #include "NxpDefines.h"
 
-#define PRINT_ORIGINAL    0
-#define PRINT_BLUR        0
-#define PRINT_CUT        0
-#define PRINT_NORM        0
-#define PRINT_THRESH    0
+#define PRINT_ORIGINAL      0
+#define PRINT_BLUR          0
+#define PRINT_CUT           0
+#define PRINT_NORM          0
+#define PRINT_THRESH        0
 
+#define USE_MEDIAN_FILTER   0
 
 
 namespace nxpbc {
@@ -29,9 +30,11 @@ namespace nxpbc {
         NxpImageAbstract::printImg(rawImage);
 #endif
 
+#if USE_MEDIAN_FILTER
         uint16_t blurImage[CAMERA_LINE_LENGTH] = {0};
         fastMedianBlur(rawImage, blurImage, 1);
         std::memcpy(rawImage, blurImage, sizeof(rawImage));
+#endif
 
 #if PRINT_BLUR
         NXP_TRACE("Blur img" NL);

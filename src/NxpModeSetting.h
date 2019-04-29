@@ -9,6 +9,13 @@
 
 namespace nxpbc {
     struct NxpModeSetting {
+        NxpModeSetting(float regulatorP, float regulatorI, float regulatorD, float diffCoef, uint16_t maxSpeed) :
+                regulatorP(regulatorP),
+                regulatorI(regulatorI),
+                regulatorD(regulatorD),
+                diffCoef(diffCoef),
+                maxSpeed(maxSpeed) {}
+
         float regulatorP = 0.0f;
         float regulatorI = 0.0f;
         float regulatorD = 0.0f;
@@ -28,7 +35,6 @@ namespace nxpbc {
         }
 
 
-
     };
 
 //
@@ -38,9 +44,33 @@ namespace nxpbc {
 //#define TURN_CONTROL_COEFICIENT 1.28f
 //#define CONTROL_PWM_MAX 300
 
-    const NxpModeSetting constRide1Setting = {CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, TURN_CONTROL_COEFICIENT, CONTROL_PWM_MAX};
-    const NxpModeSetting constRide2Setting = {280, CONST_INTEGRAL, CONST_DERIVATIVE, 15.f, CONTROL_PWM_MAX};
-    const NxpModeSetting constRide3Setting = {CONST_ERROR, CONST_INTEGRAL, CONST_DERIVATIVE, TURN_CONTROL_COEFICIENT, CONTROL_PWM_MAX};
+    const NxpModeSetting constRide1Setting = NxpModeSetting(
+            CONST_ERROR,             // PID error
+            CONST_INTEGRAL,          // PID integral
+            CONST_DERIVATIVE,        // PID Derivation
+            TURN_CONTROL_COEFICIENT, // DIFF coefficient
+            CONTROL_PWM_MAX);        // PWM base speed
+
+    const NxpModeSetting constRide2Setting = NxpModeSetting(
+            CONST_ERROR,             // PID error
+            CONST_INTEGRAL,          // PID integral
+            CONST_DERIVATIVE,        // PID Derivation
+            15.f,                    // DIFF coefficient
+            270);                    // PWM base speed
+
+    const NxpModeSetting constRide3Setting = NxpModeSetting(
+            CONST_ERROR,// PID error
+            CONST_INTEGRAL,// PID integral
+            CONST_DERIVATIVE,// PID Derivation
+            TURN_CONTROL_COEFICIENT,// DIFF coefficient
+            CONTROL_PWM_MAX);   // PWM base speed
+
+    const NxpModeSetting constFigure8Setting = NxpModeSetting(
+            200,  // PID error
+            8,    // PID integral
+            0,    // PID Derivation
+            30.f, // DIFF coefficient
+            250); // PWM base speed
 
 }
 
