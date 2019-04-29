@@ -48,6 +48,8 @@ namespace nxpbc {
          */
         unsigned int getRight();
 
+        Region getLastRawRegion();
+
         bool hasLeft();
         bool hasRight();
 
@@ -67,8 +69,7 @@ namespace nxpbc {
 
         bool findByPreviousIndex(const NxpImage &image, Region &foundRegion);
 
-        std::vector<Region>
-        getRegions(const NxpImage &image, uint8_t leftIndex = 0, uint8_t rightIndex = CAMERA_LINE_LENGTH - 1);
+        std::vector<Region> getRegions(const NxpImage &image, uint8_t leftIndex = 0, uint8_t rightIndex = CAMERA_LINE_LENGTH - 1,  bool saveToClass = true);
 
         std::vector<nxpbc::Region> currentRegions_;
         /**
@@ -102,8 +103,6 @@ namespace nxpbc {
         void reset();
 
         size_t getListSize();
-
-
 
         /**
          * @brief Fronta pro uložení čar.

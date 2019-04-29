@@ -337,27 +337,34 @@ namespace nxpbc {
         this->imageRegionList_.clear();
     }
 
-    std::vector<Region> LineTracer::getRegions(const NxpImage &image, uint8_t searchLeftIdx, uint8_t searchRightIdx) {
+    std::vector<Region> LineTracer::getRegions(const NxpImage &image, uint8_t searchLeftIdx, uint8_t searchRightIdx, bool saveToClass ) {
         NXP_TRACE("Hledam indexy podle regionu"
                           NL);
+        std::vector<nxpbc::Region> foundRegions;
+
         uint8_t currentColor = static_cast<uint8_t>(image.atThresh(searchLeftIdx));
-        currentRegions_.emplace_back(Region({searchLeftIdx, searchLeftIdx, currentColor}));
+        foundRegions.emplace_back(Region({searchLeftIdx, searchLeftIdx, currentColor}));
 
         for (uint8_t i = searchLeftIdx; i <= searchRightIdx; i++) {
             /*NXP_TRACEP("idx: %03d\tpix: %03d"
                                NL, i, image.atThresh(i, ImgType::Thresholded));*/
             if (currentColor != image.atThresh(i)) {
-                if (currentRegions_.size() > MAX_REGIONS_COUNT) {
+                if (foundRegions.size() > MAX_REGIONS_COUNT) {
                     NXP_WARN("Nalezen vysoky pocet oblasti, konec hledani."
                                      NL);
                     break;
                 }
-                currentRegions_.at(currentRegions_.size() - 1).right = i;
-                currentRegions_.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
+                foundRegions.at(foundRegions.size() - 1).right = i;
+                foundRegions.emplace_back(nxpbc::Region({i, i, image.atThresh(i)}));
             }
             currentColor = static_cast<uint8_t>(image.atThresh(i));
         }
-        return currentRegions_;
+
+        if(saveToClass){
+            currentRegions_ = foundRegions;
+        }
+
+        return foundRegions;
     }
 
     std::pair<uint8_t, uint8_t> LineTracer::getDistancesPair() {
@@ -412,6 +419,10 @@ namespace nxpbc {
 
     bool LineTracer::hasRight() {
         return hasRight_;
+    }
+
+    Region LineTracer::getLastRawRegion() {
+        return imageRegionList_.back();
     }
 
 }

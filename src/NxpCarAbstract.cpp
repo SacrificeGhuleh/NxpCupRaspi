@@ -43,9 +43,9 @@ namespace nxpbc {
             steerRegulator_{
                     new PID_new(&steerRegulatorInput_,
                                 &steerRegulatorOutput_, &steerRegulatorTarget_,
-                                modeSetting_.regulatorP,
-                                modeSetting_.regulatorI,
-                                modeSetting_.regulatorD,
+                                modeSetting_.regulatorP_,
+                                modeSetting_.regulatorI_,
+                                modeSetting_.regulatorD_,
                                 P_ON_E, DIRECT)},
             tfc_{new TFC()},
             inSpeedCheckZone_{false},
@@ -114,9 +114,9 @@ namespace nxpbc {
 
 
         innerSpeed = baseSpeed *
-                     (1.f - modeSetting_.diffCoef * (ALAMAK_TRACK * tanf(turningAngle)) / 2.f * ALAMAK_WHEELBASE);
+                     (1.f - modeSetting_.diffCoef_ * (ALAMAK_TRACK * tanf(turningAngle)) / 2.f * ALAMAK_WHEELBASE);
         outerSpeed = baseSpeed *
-                     (1.f + modeSetting_.diffCoef * (ALAMAK_TRACK * tanf(turningAngle)) / 2.f * ALAMAK_WHEELBASE);
+                     (1.f + modeSetting_.diffCoef_ * (ALAMAK_TRACK * tanf(turningAngle)) / 2.f * ALAMAK_WHEELBASE);
 
 
         if (!(tracer_->unchangedRight_ && tracer_->unchangedLeft_)) { /*V zatacce*/
@@ -177,7 +177,7 @@ namespace nxpbc {
             return;
         }
         --startTimer_;
-        if (motorSpeed_ < modeSetting_.maxSpeed/*CONTROL_DRIVE_MAX*/)
+        if (motorSpeed_ < modeSetting_.maxSpeed_/*CONTROL_DRIVE_MAX*/)
             motorSpeed_ += CONTROL_PWM_STEP;
     }
 
@@ -208,9 +208,9 @@ namespace nxpbc {
 
         steerRegulator_ = new PID_new(&steerRegulatorInput_,
                                       &steerRegulatorOutput_, &steerRegulatorTarget_,
-                                      modeSetting_.regulatorP,
-                                      modeSetting_.regulatorI,
-                                      modeSetting_.regulatorD,
+                                      modeSetting_.regulatorP_,
+                                      modeSetting_.regulatorI_,
+                                      modeSetting_.regulatorD_,
                                       P_ON_E, DIRECT);
 
     }

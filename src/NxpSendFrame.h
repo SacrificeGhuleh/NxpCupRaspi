@@ -8,6 +8,7 @@
 #include <cstdint>
 #include "NxpDefines.h"
 #include "Region.h"
+#include "NxpModeSetting.h"
 
 #if defined(__linux__)
 #include <tfc.h>
@@ -47,7 +48,7 @@ namespace nxpbc {
 
         uint8_t currentState = 0;
 
-
+        NxpModeSetting modeSetting_ = constRide1Setting;
 
         //bool computedRegion = false;
 

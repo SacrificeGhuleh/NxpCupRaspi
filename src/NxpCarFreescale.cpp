@@ -62,13 +62,27 @@ namespace nxpbc {
 
         switch ((NxpModes) tfc_->getDIPSwitch()) {
             case modeSpeedZone: {
+                /*handle*/
+
+
+                if (modeSetting_ != constSpeedZoneSetting) {
+                    modeSetting_ = constSpeedZoneSetting;
+                    handleReset();
+                }
+
                 tfc_->setLEDs(0b0000);
 
-                tracer_->addImage(nxpImage, true);
+                tracer_->addImage(nxpImage/*, true*/);
+
+                if (motorsState_ != MotorsState::Ride)
+                    break;
+
+                Region foundRegion = tracer_->getLastRawRegion();
+                auto regions = tracer_->getRegions(nxpImage, 10, CAMERA_LINE_LENGTH - 10, false);
 
                 uint8_t blackRegionsCount = 0, whiteRegionsCount = 0;
 
-                for (Region &r : tracer_->currentRegions_) {
+                for (Region &r : regions) {
                     if (r.isBlack()) {
                         blackRegionsCount++;
                     } else {
@@ -76,9 +90,9 @@ namespace nxpbc {
                     }
                 }
                 tfc_->setLED(0, 1);
-                tfc_->setLED(4, inSpeedCheckZone_);
+                //tfc_->setLED(4, inSpeedCheckZone_);
 
-                if (whiteRegionsCount > 3) {
+                if (whiteRegionsCount >= 4) {
                     if (prevZonesFoundCount_ == whiteRegionsCount) {
                         if (speedCheckZoneDebounce_ != 0)
                             speedCheckZoneDebounce_--;
@@ -116,7 +130,12 @@ namespace nxpbc {
             case modeObstacle: {
                 handleIrSensors();
 
-                /* handle*/
+
+                /*handle*/
+                if (modeSetting_ != constObstacleSetting) {
+                    modeSetting_ = constObstacleSetting;
+                    handleReset();
+                }
 
                 tracer_->addImage(nxpImage, false);
                 tfc_->setLEDs(0b0000);
@@ -162,7 +181,7 @@ namespace nxpbc {
                 handleIrSensors();
 
 
-                int regulatorConstValue = ((tfc_->ReadPot_f(1)+1.f)*100.f)/2.f;
+                int regulatorConstValue = ((tfc_->ReadPot_f(1) + 1.f) * 100.f) / 2.f;
                 int speedSetting = tfc_->ReadPot_i(0);
 
                 /*Zaokrouhlit na desitky, BO potenciometr neni uplne presny
@@ -184,7 +203,8 @@ namespace nxpbc {
                         CONST_INTEGRAL,
                         CONST_DERIVATIVE,
                         TURN_CONTROL_COEFICIENT,
-                        speedSetting);
+                        speedSetting,
+                        NxpModes::modeRideSetting);
                 if (modeSetting_ != setting) {
                     modeSetting_ = setting;
                     handleReset();
@@ -261,8 +281,8 @@ namespace nxpbc {
             }
             case MotorsState::Start: {
                 //tfc_->setPWMMax(modeSetting_.maxSpeed);
-            	tfc_->setPWMMax(CONTROL_PWM_MAX);
-            	start();
+                tfc_->setPWMMax(CONTROL_PWM_MAX);
+                start();
                 steerRegulator_->SetMode(AUTOMATIC);
                 servoPos_ = static_cast<int16_t>(steerSetting_);
 
@@ -270,10 +290,19 @@ namespace nxpbc {
             }
             case MotorsState::Ride: {
                 //tfc_->setPWMMax(modeSetting_.maxSpeed);
-            	tfc_->setPWMMax(CONTROL_PWM_MAX);
-				motorSpeed_ = modeSetting_.maxSpeed;
-            	//tfc_->MotorPWMOnOff(0b11);
+                tfc_->setPWMMax(CONTROL_PWM_MAX);
+                motorSpeed_ = modeSetting_.maxSpeed_;
+                //tfc_->MotorPWMOnOff(0b11);
                 //tfc_->ServoOnOff(0b11);
+
+                if ((NxpModes) tfc_->getDIPSwitch() == NxpModes::modeSpeedZone)
+                    if (nxpImage.isLowDiversity()) {
+                        //nastaveni serva zustane
+
+                        //servoPos_ = servoPos_;
+                        break;
+                    }
+
                 servoPos_ = static_cast<int16_t>(steerSetting_);
 //                steer(steerSetting_);
                 break;
@@ -356,7 +385,7 @@ namespace nxpbc {
                                  NL)));
                 tracer_->reset();
                 shouldReset_ = true;
-
+                inSpeedCheckZone_ = false;
             }
 
             /*Tlacitko B*/
@@ -370,6 +399,7 @@ namespace nxpbc {
                     motorsState_ = nxpbc::MotorsState::Stay;
                 }
             }
+            inSpeedCheckZone_ = false;
             btns_ = buttons;
 
         } else {
@@ -411,6 +441,8 @@ namespace nxpbc {
         sendData_.regionMedian[1] = tracer_->currentMedian_.second;
 
         sendData_.currentState = static_cast<uint8_t>(motorsState_);
+
+        sendData_.modeSetting_ = modeSetting_;
 
     }
 };

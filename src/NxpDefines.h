@@ -122,7 +122,7 @@ enum andata_chnl_enum {
 #define BLACK_COUNT 10
 
 
-#if defined(__linux__) || defined(WIN32)
+#if defined(__linux__) 
 /**
  * @brief Název sériového portu
  */
@@ -212,7 +212,7 @@ enum andata_chnl_enum {
 #define SAVE_CSV Settings::getInstance()->getSaveCsv()
 #endif
 
-#if defined(__MCUXPRESSO)
+#if defined(__MCUXPRESSO) || defined(WIN32)
 
 
     /**
@@ -302,7 +302,7 @@ enum andata_chnl_enum {
 #define START_STEPS 200
 #define MAX_REGIONS_COUNT 25
 
-#define LOW_DIVERSITY 0
+#define LOW_DIVERSITY 200
 
 /**
  * @brief Makro pro safe delete
