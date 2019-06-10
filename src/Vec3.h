@@ -8,6 +8,9 @@
 #include <cstdint>
 
 namespace nxpbc {
+    /**
+     * @brief Třísložkový celočíselný vektor
+     */
     union Vec3 {
         struct {
             int16_t x, y, z;
@@ -38,6 +41,9 @@ namespace nxpbc {
 
     };
 
+    /**
+     * @brief Třísložkový neceločíselný vektor
+     */
     union Vec3f {
         struct {
             double x, y, z;

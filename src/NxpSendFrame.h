@@ -17,6 +17,9 @@
 #define SEND_REGIONS_NUM 15
 
 namespace nxpbc {
+    /**
+     * @brief Struktura pro posílání dat přes UDP
+     */
     struct SendData {
         uint16_t image[CAMERA_LINE_LENGTH] = {0};
         uint16_t adc[anLast];

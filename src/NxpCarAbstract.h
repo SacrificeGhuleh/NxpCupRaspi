@@ -25,7 +25,7 @@ namespace nxpbc {
     class PID;
 
     /**
-     * @brief Hlavní metoda pro NXP autíčko.
+     * @brief Abstraktní třída pro model NXP auta.
      */
     class NxpCarAbstract {
     public:
@@ -48,11 +48,34 @@ namespace nxpbc {
 
         virtual ~NxpCarAbstract();
 
+        /**
+         * @brief Metoda indikující, jestli má proběhnout reset auta
+         * @return True, pokud se má auto resetovat
+         */
         bool shouldReset();
 
+        /**
+         * @brief Getter pro objekt třídy TFC
+         * @return Objekt třídy TFC
+         */
         TFC *getTfc();
 
+        /**
+         * @brief Data pro odesílání dat přes UDP
+         */
         SendData sendData_;
+
+        /**
+         * @brief Getter pro aktuální stav motorů
+         * @return Aktuální stav motorů
+         */
+        MotorsState getMotorsState();
+
+        /**
+         * @brief Přepne auto do módu stání, pokud je v módu brždění
+         */
+        virtual void switchToStayMode();
+
     protected:
 
         /**
@@ -61,40 +84,137 @@ namespace nxpbc {
          * 0b0000 0010  DECREASING - servo snizuje natoceni
          * 0b0000 0000  STAYING - servo zachovava pozici
          */
-
         uint8_t servoIncreasingBits_;
 
+        /**
+         * @brief Počet nalezených oblastí v předchozím snímku
+         */
         uint8_t prevZonesFoundCount_;
+
+        /**
+         * @brief Proměnná pro uložení informace, jestli je auto v zóně zpomalení
+         */
         bool inSpeedCheckZone_;
+
+        /**
+         * @brief Čítač pro zpoždění detekce speed check zóny
+         */
         uint8_t speedCheckZoneDebounce_;
+
+        /**
+         * @brief Aktuální stav motoru
+         */
         MotorsState motorsState_;
+        /**
+         * @brief Proměnná pro rozlišení, jestli je auto v provozu
+         */
         bool running_;
+
+        /**
+         * @brief Proměnná pro nastavení příznaku, jestli má být auto resetováno
+         */
         bool shouldReset_;
+
+        /**
+         * @brief Základní rychlost motorů
+         */
         uint16_t motorSpeed_;
         //int leftSpeed_;
         //int rightSpeed_;
+
+        /**
+         * @brief Kanál serva
+         */
         const bool servoChannel_;
+
+        /**
+         * @brief Předchozí pozice serva
+         */
         int16_t prevServoPos_;
+
+        /**
+         * @brief Aktuáljní pozice serva
+         */
         int16_t servoPos_;
+
+        /**
+         * @brief Příznak, jestli jsou právě ošetřovány zákmity na tlačítku
+         */
         bool debounce_;
+
+        /**
+         * @brief Čítač pro ošetření zákmitů tlačítka
+         */
         uint8_t debounceCounter_;
+
+        /**
+         * @brief Délka ošetření zákmitů tlačítka
+         */
         const uint8_t debounceCounterMax_;
+
+        /**
+         * @brief hodnoty tlačítek
+         */
         uint8_t btns_;
+
         uint16_t timestamp_;
         uint16_t timestampDiff_;
+
+        /**
+         * @brief Levá vzdálenost čáry
+         */
         uint8_t left_;
+
+        /**
+         * @brief Pravá vzdálenost čáry
+         */
         uint8_t right_;
+
+        /**
+         * @brief Timer pro počítání rozjezdu auta
+         */
         int startTimer_;
-        //uint16_t image_[CAMERA_LINE_LENGTH];
+
+        /**
+         * @brief Nastavení serva
+         */
         float steerSetting_;
 
+        /**
+         * @brief Instance třídy pro hledání čar
+         */
         LineTracer *tracer_;
+
         PID *pid_;
+
+        /**
+         * @brief Instance třídy TFC
+         */
         TFC *tfc_;
+
+        /**
+         * @brief Instance regulátoru
+         */
         PID_new *steerRegulator_;
+
+        /**
+         * @brief Vstup pro regulátor
+         */
         double steerRegulatorInput_;
+
+        /**
+         * @brief Výstup z regulátoru
+         */
         double steerRegulatorOutput_;
+
+        /**
+         * @brief Cílová hodnota regulátoru
+         */
         double steerRegulatorTarget_;
+
+        /**
+         * @brief Aktuální nastavený mód
+         */
         NxpModeSetting modeSetting_;
         /**
          * @brief Metoda pro výpis aktuálního stavu autíčka do konzole.
@@ -112,12 +232,6 @@ namespace nxpbc {
          */
         virtual void setRide();
 
-//
-//        /**
-//         * @brief Metoda pro řízení serva pomocí hodnoty PID regulátoru
-//         * @param pidValue Hodnota vypočtená PID regulátorem
-//         */
-//        virtual void steer(float pidValue);
 
 
         /**
@@ -131,11 +245,22 @@ namespace nxpbc {
          */
         virtual void start();
 
+        /**
+         * @brief Metoda pro výpočet natočení serva
+         * @return natočení serva ve stupních
+         */
         virtual float servoToAngle();
 
-
+        /**
+         * @brief Funkce pro reset regulátoru
+         */
         virtual void resetRegulator();
+
+        /**
+         * @brief Funkce pro reset auta
+         */
         virtual void handleReset();
+
 
     };
 }

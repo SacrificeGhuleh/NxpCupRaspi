@@ -8,6 +8,7 @@
 #if defined(__linux__) || defined(WIN32)
 #include "XmlReader.h"
 
+
 namespace nxpbc {
     /**
      * @brief Třída pro mapování XML dokumentu NXP CUP

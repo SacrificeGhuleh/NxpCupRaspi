@@ -1,6 +1,6 @@
-//
-// Created by zvone on 16-Feb-19.
-//
+/**
+ * @brief https://github.com/br3ttb/Arduino-PID-Library
+ */
 
 #include "pch.h"
 #include "PID_New.h"

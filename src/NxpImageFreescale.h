@@ -18,15 +18,35 @@ namespace nxpbc {
     //class NxpImageAbstract;
     enum class ImgType;
 
+    /**
+     * @brief Třída pro uložení obrazových dat pro FRDM-K66F
+     */
     class NxpImage : public NxpImageAbstract {
     public:
+        /**
+         * @brief Konstruktor
+         * @param rawImage Obraz z kamery
+         */
         NxpImage(uint16_t (&rawImage)[CAMERA_LINE_LENGTH]);
 
+        /**
+         * @brief Getter pro vybrany pixel
+         * @param index index pixelu
+         * @param type typ obrazu, ze kterého se má pixel vzít
+         * @return pixel
+         */
         virtual uint16_t at(uint8_t index, ImgType type) const;
-
+        /**
+         * @brief Funkce pro výpis obrazu
+         * @param type Typ obrazu
+         */
         virtual void printImg(ImgType type);
 
     protected:
+
+        /**
+         * @brief Funkce pro kompletní zpracování obrazu
+         */
         virtual void process() override;
 
     private:

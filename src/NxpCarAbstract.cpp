@@ -153,6 +153,8 @@ namespace nxpbc {
         }
 
         tfc_->setServo_i(servoChannel_, servoPos_);
+        tfc_->setServo_i(1, -1.f*servoPos_);
+
         tfc_->setMotorPWM_i(static_cast<int>(leftSpeed),
                             static_cast<int>(rightSpeed));
 
@@ -218,6 +220,18 @@ namespace nxpbc {
     void NxpCarAbstract::handleReset() {
         tracer_->reset();
         resetRegulator();
+
+    }
+
+    MotorsState NxpCarAbstract::getMotorsState() {
+        return motorsState_;
+    }
+
+    void NxpCarAbstract::switchToStayMode() {
+        if (motorsState_ == MotorsState::Brake) {
+            motorsState_ = MotorsState::Stay;
+            handleReset();
+        }
     }
 
 }

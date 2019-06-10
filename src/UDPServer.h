@@ -27,6 +27,9 @@ namespace nxpbc {
 
 #define UDP_BUFSIZE 2048
 
+    /**
+     * @brief Třída pro UDP server pro Raspberry Pi
+     */
     class UDPServer {
     public:
         UDPServer(unsigned int port);

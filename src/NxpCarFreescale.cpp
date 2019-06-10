@@ -18,8 +18,11 @@
 
 //#include "enet.h"
 
-namespace nxpbc {
 
+
+namespace nxpbc {
+#define BRAKING_FORCE 0//1
+#define BRAKE 0//-300
 #define MAX_SERVO_CHANGE 2000
 
     NxpCar::NxpCar() :
@@ -107,7 +110,6 @@ namespace nxpbc {
                     }
                 }
                 prevZonesFoundCount_ = whiteRegionsCount;
-                tfc_->setLED(4, inSpeedCheckZone_);
 
                 if (inSpeedCheckZone_) {
                     tfc_->setLEDs(0b1111);
@@ -179,7 +181,6 @@ namespace nxpbc {
             }
             case modeRideSetting: {
                 handleIrSensors();
-
 
                 int regulatorConstValue = ((tfc_->ReadPot_f(1) + 1.f) * 100.f) / 2.f;
                 int speedSetting = tfc_->ReadPot_i(0);
@@ -307,6 +308,12 @@ namespace nxpbc {
 //                steer(steerSetting_);
                 break;
             }
+            case MotorsState::Brake: {
+                tfc_->setPWMMax(CONTROL_PWM_MAX);
+                motorSpeed_ = MIN((motorSpeed_ + BRAKING_FORCE), 0);
+                servoPos_ = static_cast<int16_t>(steerSetting_);
+                break;
+            }
         }
 
 
@@ -337,16 +344,16 @@ namespace nxpbc {
     }
 
     void NxpCar::handleIrSensors() {
-        if (this->tfc_->ReadADC(anIR_1) > WHITE_IR_BOUND) {
-            bitWrite(this->lineCrossBits_, 0, 1);
-            this->leftLineCrossTimer_ = this->maxCrossTimer_;
-        } else if (this->leftLineCrossTimer_ > 0) {
-            this->leftLineCrossTimer_--;
-        } else if (this->leftLineCrossTimer_ == 0) {
-            bitWrite(this->lineCrossBits_, 0, 0);
-        }
-
         if (this->motorsState_ == MotorsState::Ride) {
+            if (this->tfc_->ReadADC(anIR_1) > WHITE_IR_BOUND) {
+                bitWrite(this->lineCrossBits_, 0, 1);
+                this->leftLineCrossTimer_ = this->maxCrossTimer_;
+            } else if (this->leftLineCrossTimer_ > 0) {
+                this->leftLineCrossTimer_--;
+            } else if (this->leftLineCrossTimer_ == 0) {
+                bitWrite(this->lineCrossBits_, 0, 0);
+            }
+
             if (this->tfc_->ReadADC(anIR_2) > WHITE_IR_BOUND) {
                 bitWrite(this->lineCrossBits_, 1, 1);
                 this->middleLineCrossTimer_ = this->maxCrossTimer_;
@@ -355,9 +362,7 @@ namespace nxpbc {
             } else if (this->middleLineCrossTimer_ == 0) {
                 bitWrite(this->lineCrossBits_, 1, 0);
             }
-        }
 
-        if (this->motorsState_ == MotorsState::Ride) {
             if (this->tfc_->ReadADC(anIR_3) > WHITE_IR_BOUND) {
                 bitWrite(this->lineCrossBits_, 2, 1);
                 this->rightLineCrossTimer_ = this->maxCrossTimer_;
@@ -366,12 +371,14 @@ namespace nxpbc {
             } else if (this->rightLineCrossTimer_ == 0) {
                 bitWrite(this->lineCrossBits_, 2, 0);
             }
-        }
 
-
-        if (this->lineCrossBits_ == 0b111 || this->lineCrossBits_ == 0b101) {
-            if (this->motorsState_ == MotorsState::Ride) {
-                this->handleBtns(0b10);
+            if (this->lineCrossBits_ == 0b111 || this->lineCrossBits_ == 0b101) {
+                motorsState_ = MotorsState::Brake;
+                motorSpeed_ = BRAKE;
+                this->lineCrossBits_ = 0b000;
+                this->leftLineCrossTimer_ = 0;
+                this->middleLineCrossTimer_ = 0;
+                this->rightLineCrossTimer_ = 0;
             }
         }
     }
@@ -395,7 +402,7 @@ namespace nxpbc {
                 /*Konec resetu*/
                 if (motorsState_ == nxpbc::MotorsState::Stay) {
                     motorsState_ = nxpbc::MotorsState::Start;
-                } else if (motorsState_ == nxpbc::MotorsState::Ride) {
+                } else if (motorsState_ == nxpbc::MotorsState::Ride || motorsState_ == nxpbc::MotorsState::Brake) {
                     motorsState_ = nxpbc::MotorsState::Stay;
                 }
             }

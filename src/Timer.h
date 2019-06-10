@@ -1,6 +1,7 @@
-//
-// https://gist.github.com/gongzhitaao/7062087
-//
+
+/**
+ * @brief https://gist.github.com/gongzhitaao/7062087
+ */
 #ifndef NXPCUPRASPI_TIMER_H
 #define NXPCUPRASPI_TIMER_H
 

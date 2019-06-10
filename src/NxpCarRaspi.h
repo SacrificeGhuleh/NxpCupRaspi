@@ -21,6 +21,9 @@ namespace nxpbc {
 
     class NxpCommunication;
 
+    /**
+     * @brief Hlavní třída auta pro Raspberry Pi
+     */
     class NxpCar : NxpCarAbstract {
 
     public:

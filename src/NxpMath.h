@@ -11,6 +11,12 @@
 
 namespace nxpbc {
 
+    /**
+     * @brief Funkce pro výpočet mediánu obecného pole
+     * @tparam T číselný datový typ
+     * @param v vektor hodnot
+     * @return Medián hodnot vektoru
+     */
     template<class T>
     T median(std::vector<T> v) {
         size_t n = v.size() / 2;

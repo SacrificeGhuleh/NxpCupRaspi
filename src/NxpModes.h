@@ -7,6 +7,9 @@
 
 namespace nxpbc{
 
+    /**
+     * @brief Módy pro jednotlivé disciplíny
+     */
     enum NxpModes{
         modeDiagBtns    = 0b0001,
         modeDiagServo   = 0b0011,

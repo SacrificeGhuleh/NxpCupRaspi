@@ -1,6 +1,6 @@
-//
-// Created by zvone on 16-Feb-19.
-//
+/**
+ * @brief https://github.com/br3ttb/Arduino-PID-Library
+ */
 
 #ifndef NXPCUPRASPI_PID_NEW_H
 #define NXPCUPRASPI_PID_NEW_H

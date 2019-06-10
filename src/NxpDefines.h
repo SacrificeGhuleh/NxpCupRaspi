@@ -251,24 +251,31 @@ enum andata_chnl_enum {
 #define CONTROL_MAX_RATIO 1.0f
 
     /**
-     * @brief TODO
+     * @brief Proporcionální konstanta pro PID
      */
-#define CONST_ERROR 160.6f
+#define CONST_ERROR 160.f//200.f//160.6f
     /**
-     * @brief TODO
+     * @brief Derivační konstanta pro PID
      */
 #define CONST_DERIVATIVE 8.3f
     /**
-     * @brief TODO
+     * @brief Integrační konstanta pro PID
      */
-#define CONST_INTEGRAL 0.5f
+#define CONST_INTEGRAL 1.5f
 
     /**
      * @brief Poloměr oblasti, ve které se hledá čára podle předchozích hodnot
      */
 #define PREV_LINE_SEARCH_REGION 5
+
+    /**
+     * @brief Počet snímků pro uložení v paměti
+     */
 #define TRACER_HISTORY_SIZE 5
 
+    /**
+     * @brief Konstanta pro převod PWM serva na stupně natočení kol
+     */
 #define SERVO_TO_DEG_CONST 5.85f
 
 
@@ -290,19 +297,37 @@ enum andata_chnl_enum {
 /**
  * @brief Koeficient pro diferencial
  */
-#define TURN_CONTROL_COEFICIENT 1.28f
+#define TURN_CONTROL_COEFICIENT 100.f
 
 /**
  * @brief Pi
  */
 #define PI 3.14159265
 
+/**
+ * @brief Čítač pro měření přejetí čáry
+ */
 #define LINE_CROSS_TIMER 40
-#define WHITE_IR_BOUND 2000
+
+/**
+ * @brief Prahovací hodnota pro IR senzory
+ */
+#define WHITE_IR_BOUND 2500
+
+/**
+ * @brief Počet kroků při rozjezdu
+ */
 #define START_STEPS 200
+
+/**
+ * @brief Maximální počet uložených regionů
+ */
 #define MAX_REGIONS_COUNT 25
 
-#define LOW_DIVERSITY 200
+/**
+ * @brief Konstanta pro rozpoznání nízké diverzity obrazu - auto je pravděpodobně v křižovatce
+ */
+#define LOW_DIVERSITY 0
 
 /**
  * @brief Makro pro safe delete

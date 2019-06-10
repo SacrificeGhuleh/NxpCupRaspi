@@ -22,7 +22,11 @@ namespace nxpbc {
         /**
          * @brief Mod pro jizdu
          */
-                Ride
+                Ride,
+        /**
+         * @brief Mod pro zastaveni
+         */
+                Brake
     };
 }
 

@@ -8,6 +8,9 @@
 class Timer;
 
 namespace nxpbc {
+    /**
+     * @brief Jednoduchá implementace PID regulátoru
+     */
     class PID {
 
     public:
