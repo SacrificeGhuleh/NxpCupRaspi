@@ -7,27 +7,27 @@
 
 
 namespace nxpbc {
+  /**
+   * @brief Enum pro rozliseni jednotlivych modu jizdy
+   */
+  enum class MotorsState {
     /**
-     * @brief Enum pro rozliseni jednotlivych modu jizdy
+     * @brief Mod pro stani
      */
-    enum class MotorsState {
-        /**
-         * @brief Mod pro stani
-         */
-                Stay,
-        /**
-         * @brief Mod pro rozjezd
-         */
-                Start,
-        /**
-         * @brief Mod pro jizdu
-         */
-                Ride,
-        /**
-         * @brief Mod pro zastaveni
-         */
-                Brake
-    };
+        Stay,
+    /**
+     * @brief Mod pro rozjezd
+     */
+        Start,
+    /**
+     * @brief Mod pro jizdu
+     */
+        Ride,
+    /**
+     * @brief Mod pro zastaveni
+     */
+        Brake
+  };
 }
 
 #endif //NXPCUPRASPI_MOTORSSTATE_H

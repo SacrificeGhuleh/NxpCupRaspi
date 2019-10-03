@@ -5,15 +5,15 @@
 #include "Singleton.h"
 
 namespace nxpbc {
-
-    Singleton *Singleton::getInstance() {
-        static Singleton *instance;
-        if (!instance)
-            instance = new Singleton();
-
-        return instance;
-    }
-
-    Singleton::Singleton() {}
-
+  
+  Singleton *Singleton::getInstance() {
+    static Singleton *instance;
+    if (!instance)
+      instance = new Singleton();
+    
+    return instance;
+  }
+  
+  Singleton::Singleton() {}
+  
 }

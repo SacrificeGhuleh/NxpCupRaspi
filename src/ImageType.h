@@ -6,27 +6,27 @@
 #define NXPCUPRASPI_IMAGETYPE_H
 
 namespace nxpbc {
-
+  
+  /**
+   * @brief Výčtový typ pro určení obrazových dat
+   */
+  enum class ImgType {
     /**
-     * @brief Výčtový typ pro určení obrazových dat
+     * @brief Čistá, nezpracovaná data z kamery
      */
-    enum class ImgType {
-        /**
-         * @brief Čistá, nezpracovaná data z kamery
-         */
-                Raw = 0,
-
-        /**
-         * @brief Normalizovaná obrazová data
-         */
-                Normalized,
-
-        /**
-         * @brief Obrazová data oříznutá prahováním
-         */
-                Thresholded
-    };
-
+        Raw = 0,
+    
+    /**
+     * @brief Normalizovaná obrazová data
+     */
+        Normalized,
+    
+    /**
+     * @brief Obrazová data oříznutá prahováním
+     */
+        Thresholded
+  };
+  
 }
 
 #endif //NXPCUPRASPI_IMAGETYPE_H

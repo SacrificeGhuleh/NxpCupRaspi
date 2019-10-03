@@ -7,20 +7,20 @@
 
 PID_new::PID_new(double *Input, double *Output, double *Setpoint,
                  double Kp, double Ki, double Kd, int POn, int ControllerDirection) {
-    myOutput = Output;
-    myInput = Input;
-    mySetpoint = Setpoint;
-    inAuto = false;
-
-    PID_new::SetOutputLimits(-1000, 1000);                //default output limit corresponds to
-    //the arduino pwm limits
-
-    SampleTime = 10;                            //default Controller Sample Time is 0.1 seconds
-
-    PID_new::SetControllerDirection(ControllerDirection);
-    PID_new::SetTunings(Kp, Ki, Kd, POn);
-
-    lastTime = millis() - SampleTime;
+  myOutput = Output;
+  myInput = Input;
+  mySetpoint = Setpoint;
+  inAuto = false;
+  
+  PID_new::SetOutputLimits(-1000, 1000);                //default output limit corresponds to
+  //the arduino pwm limits
+  
+  SampleTime = 10;                            //default Controller Sample Time is 0.1 seconds
+  
+  PID_new::SetControllerDirection(ControllerDirection);
+  PID_new::SetTunings(Kp, Ki, Kd, POn);
+  
+  lastTime = millis() - SampleTime;
 }
 
 /*Constructor (...)*********************************************************
@@ -30,8 +30,8 @@ PID_new::PID_new(double *Input, double *Output, double *Setpoint,
 
 PID_new::PID_new(double *Input, double *Output, double *Setpoint,
                  double Kp, double Ki, double Kd, int ControllerDirection)
-        : PID_new::PID_new(Input, Output, Setpoint, Kp, Ki, Kd, P_ON_E, ControllerDirection) {
-
+    : PID_new::PID_new(Input, Output, Setpoint, Kp, Ki, Kd, P_ON_E, ControllerDirection) {
+  
 }
 
 
@@ -42,39 +42,39 @@ PID_new::PID_new(double *Input, double *Output, double *Setpoint,
  *   false when nothing has been done.
  **********************************************************************************/
 bool PID_new::Compute() {
-    if (!inAuto) return false;
-    long long int now = 0;//millis();
-    long long int timeChange = 10;//(now - lastTime);
-    if (timeChange >= SampleTime) {
-        /*Compute all the working error variables*/
-        double input = *myInput;
-        double error = *mySetpoint - input;
-        double dInput = (input - lastInput);
-        outputSum += (ki * error);
-
-        /*Add Proportional on Measurement, if P_ON_M is specified*/
-        if (!pOnE) outputSum -= kp * dInput;
-
-        if (outputSum > outMax) outputSum = outMax;
-        else if (outputSum < outMin) outputSum = outMin;
-
-        /*Add Proportional on Error, if P_ON_E is specified*/
-        double output;
-        if (pOnE) output = kp * error;
-        else output = 0;
-
-        /*Compute Rest of PID Output*/
-        output += outputSum - kd * dInput;
-
-        if (output > outMax) output = outMax;
-        else if (output < outMin) output = outMin;
-        *myOutput = output;
-
-        /*Remember some variables for next time*/
-        lastInput = input;
-        lastTime = now;
-        return true;
-    } else return false;
+  if (!inAuto) return false;
+  long long int now = 0;//millis();
+  long long int timeChange = 10;//(now - lastTime);
+  if (timeChange >= SampleTime) {
+    /*Compute all the working error variables*/
+    double input = *myInput;
+    double error = *mySetpoint - input;
+    double dInput = (input - lastInput);
+    outputSum += (ki * error);
+    
+    /*Add Proportional on Measurement, if P_ON_M is specified*/
+    if (!pOnE) outputSum -= kp * dInput;
+    
+    if (outputSum > outMax) outputSum = outMax;
+    else if (outputSum < outMin) outputSum = outMin;
+    
+    /*Add Proportional on Error, if P_ON_E is specified*/
+    double output;
+    if (pOnE) output = kp * error;
+    else output = 0;
+    
+    /*Compute Rest of PID Output*/
+    output += outputSum - kd * dInput;
+    
+    if (output > outMax) output = outMax;
+    else if (output < outMin) output = outMin;
+    *myOutput = output;
+    
+    /*Remember some variables for next time*/
+    lastInput = input;
+    lastTime = now;
+    return true;
+  } else return false;
 }
 
 /* SetTunings(...)*************************************************************
@@ -83,45 +83,45 @@ bool PID_new::Compute() {
  * be adjusted on the fly during normal operation
  ******************************************************************************/
 void PID_new::SetTunings(double Kp, double Ki, double Kd, int POn) {
-    if (Kp < 0 || Ki < 0 || Kd < 0) return;
-
-    pOn = POn;
-    pOnE = POn == P_ON_E;
-
-    dispKp = Kp;
-    dispKi = Ki;
-    dispKd = Kd;
-
-    double SampleTimeInSec = ((double) SampleTime) / 1000;
-    kp = Kp;
-    ki = Ki * SampleTimeInSec;
-    kd = Kd / SampleTimeInSec;
-
-    if (controllerDirection == REVERSE) {
-        kp = (0 - kp);
-        ki = (0 - ki);
-        kd = (0 - kd);
-    }
+  if (Kp < 0 || Ki < 0 || Kd < 0) return;
+  
+  pOn = POn;
+  pOnE = POn == P_ON_E;
+  
+  dispKp = Kp;
+  dispKi = Ki;
+  dispKd = Kd;
+  
+  double SampleTimeInSec = ((double) SampleTime) / 1000;
+  kp = Kp;
+  ki = Ki * SampleTimeInSec;
+  kd = Kd / SampleTimeInSec;
+  
+  if (controllerDirection == REVERSE) {
+    kp = (0 - kp);
+    ki = (0 - ki);
+    kd = (0 - kd);
+  }
 }
 
 /* SetTunings(...)*************************************************************
  * Set Tunings using the last-rembered POn setting
  ******************************************************************************/
 void PID_new::SetTunings(double Kp, double Ki, double Kd) {
-    SetTunings(Kp, Ki, Kd, pOn);
+  SetTunings(Kp, Ki, Kd, pOn);
 }
 
 /* SetSampleTime(...) *********************************************************
  * sets the period, in Milliseconds, at which the calculation is performed
  ******************************************************************************/
 void PID_new::SetSampleTime(int NewSampleTime) {
-    if (NewSampleTime > 0) {
-        double ratio = (double) NewSampleTime
-                       / (double) SampleTime;
-        ki *= ratio;
-        kd /= ratio;
-        SampleTime = (unsigned long) NewSampleTime;
-    }
+  if (NewSampleTime > 0) {
+    double ratio = (double) NewSampleTime
+                   / (double) SampleTime;
+    ki *= ratio;
+    kd /= ratio;
+    SampleTime = (unsigned long) NewSampleTime;
+  }
 }
 
 /* SetOutputLimits(...)****************************************************
@@ -133,17 +133,17 @@ void PID_new::SetSampleTime(int NewSampleTime) {
  *  here.
  **************************************************************************/
 void PID_new::SetOutputLimits(double Min, double Max) {
-    if (Min >= Max) return;
-    outMin = Min;
-    outMax = Max;
-
-    if (inAuto) {
-        if (*myOutput > outMax) *myOutput = outMax;
-        else if (*myOutput < outMin) *myOutput = outMin;
-
-        if (outputSum > outMax) outputSum = outMax;
-        else if (outputSum < outMin) outputSum = outMin;
-    }
+  if (Min >= Max) return;
+  outMin = Min;
+  outMax = Max;
+  
+  if (inAuto) {
+    if (*myOutput > outMax) *myOutput = outMax;
+    else if (*myOutput < outMin) *myOutput = outMin;
+    
+    if (outputSum > outMax) outputSum = outMax;
+    else if (outputSum < outMin) outputSum = outMin;
+  }
 }
 
 /* SetMode(...)****************************************************************
@@ -152,11 +152,11 @@ void PID_new::SetOutputLimits(double Min, double Max) {
  * automatically initialized
  ******************************************************************************/
 void PID_new::SetMode(int Mode) {
-    bool newAuto = (Mode == AUTOMATIC);
-    if (newAuto && !inAuto) {  /*we just went from manual to auto*/
-        PID_new::Initialize();
-    }
-    inAuto = newAuto;
+  bool newAuto = (Mode == AUTOMATIC);
+  if (newAuto && !inAuto) {  /*we just went from manual to auto*/
+    PID_new::Initialize();
+  }
+  inAuto = newAuto;
 }
 
 /* Initialize()****************************************************************
@@ -164,10 +164,10 @@ void PID_new::SetMode(int Mode) {
  *  from manual to automatic mode.
  ******************************************************************************/
 void PID_new::Initialize() {
-    outputSum = *myOutput;
-    lastInput = *myInput;
-    if (outputSum > outMax) outputSum = outMax;
-    else if (outputSum < outMin) outputSum = outMin;
+  outputSum = *myOutput;
+  lastInput = *myInput;
+  if (outputSum > outMax) outputSum = outMax;
+  else if (outputSum < outMin) outputSum = outMin;
 }
 
 /* SetControllerDirection(...)*************************************************
@@ -177,12 +177,12 @@ void PID_new::Initialize() {
  * be decreasing.  This is called from the constructor.
  ******************************************************************************/
 void PID_new::SetControllerDirection(int Direction) {
-    if (inAuto && Direction != controllerDirection) {
-        kp = (0 - kp);
-        ki = (0 - ki);
-        kd = (0 - kd);
-    }
-    controllerDirection = Direction;
+  if (inAuto && Direction != controllerDirection) {
+    kp = (0 - kp);
+    ki = (0 - ki);
+    kd = (0 - kd);
+  }
+  controllerDirection = Direction;
 }
 
 /* Status Funcions*************************************************************
@@ -201,31 +201,31 @@ int PID_new::GetMode() { return inAuto ? AUTOMATIC : MANUAL; }
 int PID_new::GetDirection() { return controllerDirection; }
 
 bool PID_new::compute(double input, double target, double &output) {
-    //double input = *myInput;
-    double error = target - input;
-    double dInput = (input - lastInput);
-    outputSum += (ki * error);
-
-    /*Add Proportional on Measurement, if P_ON_M is specified*/
-    if (!pOnE) outputSum -= kp * dInput;
-
-    if (outputSum > outMax) outputSum = outMax;
-    else if (outputSum < outMin) outputSum = outMin;
-
-    /*Add Proportional on Error, if P_ON_E is specified*/
-    //double output;
-    if (pOnE) output = kp * error;
-    else output = 0;
-
-    /*Compute Rest of PID Output*/
-    output += outputSum - kd * dInput;
-
-    if (output > outMax) output = outMax;
-    else if (output < outMin) output = outMin;
-    *myOutput = output;
-
-    /*Remember some variables for next time*/
-    lastInput = input;
-    //lastTime = now;
-    return true;
+  //double input = *myInput;
+  double error = target - input;
+  double dInput = (input - lastInput);
+  outputSum += (ki * error);
+  
+  /*Add Proportional on Measurement, if P_ON_M is specified*/
+  if (!pOnE) outputSum -= kp * dInput;
+  
+  if (outputSum > outMax) outputSum = outMax;
+  else if (outputSum < outMin) outputSum = outMin;
+  
+  /*Add Proportional on Error, if P_ON_E is specified*/
+  //double output;
+  if (pOnE) output = kp * error;
+  else output = 0;
+  
+  /*Compute Rest of PID Output*/
+  output += outputSum - kd * dInput;
+  
+  if (output > outMax) output = outMax;
+  else if (output < outMin) output = outMin;
+  *myOutput = output;
+  
+  /*Remember some variables for next time*/
+  lastInput = input;
+  //lastTime = now;
+  return true;
 }

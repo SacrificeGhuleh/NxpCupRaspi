@@ -5,22 +5,22 @@
 #ifndef NXPCUPRASPI_SINGLETON_H
 #define NXPCUPRASPI_SINGLETON_H
 namespace nxpbc {
-
+  
+  /**
+   * @brief Obecna trida pro singleton
+   */
+  class Singleton {
+  public:
     /**
-     * @brief Obecna trida pro singleton
+     * @brief Metoda pro ziskani instance tridy Singleton
+     * @return Instance tridy Singleton
      */
-    class Singleton {
-    public:
-        /**
-         * @brief Metoda pro ziskani instance tridy Singleton
-         * @return Instance tridy Singleton
-         */
-        static Singleton *getInstance();
-
-    protected:
-        Singleton();
-
-        virtual ~Singleton() = default;
-    };
+    static Singleton *getInstance();
+  
+  protected:
+    Singleton();
+    
+    virtual ~Singleton() = default;
+  };
 }
 #endif //NXPCUPRASPI_SINGLETON_H

@@ -9,25 +9,25 @@
 //#include "ImageType.h"
 #include "NxpImageAbstract.h"
 
-#ifndef CAMERA_LINE_LENGTH
-#define CAMERA_LINE_LENGTH 128
+#ifndef TFC_CAMERA_LINE_LENGTH
+#define TFC_CAMERA_LINE_LENGTH 128
 #endif
 
 namespace nxpbc {
 
     //class NxpImageAbstract;
     enum class ImgType;
-
-    /**
-     * @brief Třída pro uložení obrazových dat pro FRDM-K66F
-     */
+  
+  /**
+   * @brief Třída pro uložení obrazových dat pro FRDM-K66F
+   */
     class NxpImage : public NxpImageAbstract {
     public:
         /**
          * @brief Konstruktor
          * @param rawImage Obraz z kamery
          */
-        NxpImage(uint16_t (&rawImage)[CAMERA_LINE_LENGTH]);
+        NxpImage(uint16_t (&rawImage)[TFC_CAMERA_LINE_LENGTH]);
 
         /**
          * @brief Getter pro vybrany pixel
@@ -50,7 +50,7 @@ namespace nxpbc {
         virtual void process() override;
 
     private:
-        //uint16_t thresholdedImage_[CAMERA_LINE_LENGTH];
+        //uint16_t thresholdedImage_[TFC_CAMERA_LINE_LENGTH];
         //uint16_t min_;
         //uint16_t max_;
         //uint16_t threshValue_;

@@ -28,20 +28,20 @@ if (DOXYGEN_FOUND)
     add_custom_target(apidoc ALL DEPENDS ${DOXYGEN_OUTPUT})
 
     add_custom_target(apidoc_forced
-            COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
-            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_INPUT}
-            COMMAND ${CMAKE_COMMAND} -E echo "Done."
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            )
+                      COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
+                      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_INPUT}
+                      COMMAND ${CMAKE_COMMAND} -E echo "Done."
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                      )
 endif (DOXYGEN_FOUND)
 
 set(TFC
-        libraries/tfc/tfc.cpp
-        libraries/tfc/tfc.h)
+    tfc-k6x/tfc.cpp
+    tfc-k6x/tfc.h)
 
 set(PCH
-        src/pch.h
-        src/pch.cpp)
+    src/pch.h
+    src/pch.cpp)
 
 set(NXP_CODE
     src/main.cpp
@@ -52,53 +52,44 @@ set(NXP_CODE
     src/motorsState.h
     src/NxpCarAbstract.cpp
     src/NxpCarAbstract.h
-    src/NxpCommunication.cpp
-    src/NxpCommunication.h
-    src/NxpCupXmlConfig.cpp
-    src/NxpCupXmlConfig.h
     src/NxpDefines.h
     src/NxpImageAbstract.cpp
     src/NxpImageAbstract.h
-    src/NxpSerialPort.cpp
-    src/NxpSerialPort.h
-    src/pch.cpp
-    src/pch.h
     src/PID.cpp
     src/PID.h
     src/Region.h
-    src/SerialPort.cpp
-    src/SerialPort.h
-    src/Settings.cpp
-    src/Settings.h
     src/Singleton.cpp
     src/Singleton.h
-    src/UDPServer.cpp
-    src/UDPServer.h
-    src/XmlReader.cpp
-    src/XmlReader.h
     src/PID_New.cpp
     src/PID_New.h
-    src/LinuxUDPServer.h
-    src/LinuxUDPServer.cpp
-    src/NxpCarRaspi.cpp src/NxpCarRaspi.h src/NxpCarFreescale.cpp src/NxpCarFreescale.h src/NxpImageFreescale.cpp src/NxpImageFreescale.h src/NxpImageRaspi.cpp src/NxpImageRaspi.h src/NxpImage.h src/NxpCar.h src/NxpSendFrame.h src/NxpMath.h src/Vec3.h src/ImuData.h src/NxpModeSetting.h)
+    src/NxpCarFreescale.cpp
+    src/NxpCarFreescale.h
+    src/NxpImageFreescale.cpp
+    src/NxpImageFreescale.h
+    src/NxpSendFrame.h
+    src/NxpMath.h
+    src/Vec3.h
+    src/ImuData.h
+    src/NxpModeSetting.h
+    src/colors.h)
 
 
 set(INCLUDES
-        libraries/tfc)
+    board
+    CMSIS
+    drivers
+    lwip
+    lwip/enet
+    source
+    src
+    startup
+    tfc-k6x
+    utilies)
 
-IF (WIN32)
-    include_directories(libraries/wiringPi/wiringPi)
-ELSE ()
-    find_library(wiringPi_LIB wiringPi)
-ENDIF ()
+
 
 include_directories(${INCLUDES})
 link_directories(${INCLUDES})
-add_executable(NxpCupRaspi ${NXP_CODE} ${PCH} ${TFC} src/colors.h src/Timer.h)
-#add_executable(NxpCupRaspi src/*.h src/*.cpp ${PCH} ${TFC} src/colors.h src/Timer.h)
+add_executable(NxpCupRaspi ${NXP_CODE} ${PCH})
 
 
-IF (WIN32)
-ELSE ()
-    target_link_libraries(NxpCupRaspi ${wiringPi_LIB})
-ENDIF ()
