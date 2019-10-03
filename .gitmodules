@@ -1,6 +1,6 @@
 [submodule "tfc-k6x"]
 	path = tfc-k6x
-	url = https://github.com/SacrificeGhuleh/tfc-k6x.git
+	url = https://git.cs.vsb.cz/zvo0016/tfc-k6x.git
 [submodule "NxpCarInterface"]
 	path = NxpCarInterface
-	url = https://github.com/SacrificeGhuleh/NxpCarInterface.git
+	url = https://git.cs.vsb.cz/zvo0016/nxpcarinterface.git
